@@ -1,12 +1,12 @@
 :root {
-  --bg-deep: #07090f;
-  --bg-surface: #0d1117;
-  --bg-elevated: #141b24;
+  --bg-deep: #0b1020;
+  --bg-surface: #131a2a;
+  --bg-elevated: #1a2536;
   --accent: #00c9b1;
   --accent-cold: #4f9cf9;
-  --text-primary: #e8ecf4;
-  --text-secondary: #7a8599;
-  --border: #1e2a38;
+  --text-primary: #f2f6ff;
+  --text-secondary: #aeb9cd;
+  --border: #2a3b52;
   --danger: #f04a4a;
   --container: min(1400px, 100% - clamp(40px, 8vw, 180px));
 }
@@ -23,7 +23,9 @@ body {
 }
 
 body {
-  background: var(--bg-deep);
+  background: radial-gradient(1200px 700px at 80% -10%, rgba(79,156,249,0.14), transparent 60%),
+    radial-gradient(900px 600px at 10% 10%, rgba(0,201,177,0.09), transparent 65%),
+    var(--bg-deep);
   color: var(--text-primary);
   font-family: 'DM Sans', sans-serif;
   line-height: 1.6;
@@ -95,6 +97,7 @@ h2 {
 p,
 li {
   color: var(--text-secondary);
+  font-weight: 500;
   font-size: clamp(1rem, 1.4vw, 1.125rem);
 }
 
@@ -151,6 +154,8 @@ small,
 
 .placeholder {
   min-height: 280px;
+  background: rgba(11, 16, 32, 0.72);
+  border: 1px dashed rgba(174, 185, 205, 0.35);
   width: 100%;
   display: grid;
   place-items: center;

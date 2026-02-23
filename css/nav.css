@@ -8,7 +8,7 @@
 }
 
 .site-nav.scrolled {
-  background: rgba(20, 27, 36, 0.72);
+  background: rgba(26, 37, 54, 0.88);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
@@ -55,7 +55,7 @@
   font-size: 0.78rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: #c4cde0;
   border-bottom: 1px solid transparent;
 }
 
@@ -88,7 +88,7 @@
   padding: 90px 20px 20px;
   border-left: 1px solid var(--border);
   backdrop-filter: blur(20px);
-  background: rgba(13, 17, 23, 0.7);
+  background: rgba(19, 26, 42, 0.82);
   transition: right 0.3s ease;
   z-index: 39;
 }
@@ -110,7 +110,7 @@
   text-transform: uppercase;
   letter-spacing: 0.07em;
   border-bottom: 1px solid var(--border);
-  color: var(--text-secondary);
+  color: #c4cde0;
 }
 
 @media (max-width: 900px) {

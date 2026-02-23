@@ -1,0 +1,97 @@
+.btn-primary,
+.btn-ghost {
+  min-height: 44px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg-deep);
+  border: none;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+}
+
+.btn-primary:hover {
+  background: #00f5da;
+  box-shadow: 0 0 30px rgba(0, 201, 177, 0.4);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  padding: 32px;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+
+.card:hover {
+  border-color: rgba(0, 201, 177, 0.3);
+  box-shadow: 0 0 24px rgba(0, 201, 177, 0.07);
+  transform: translateY(-4px);
+}
+
+.badge-row {
+  margin-top: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.badge {
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: 'IBM Plex Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  padding: 8px 10px;
+}
+
+.faq-item {
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
+.faq-trigger {
+  width: 100%;
+  text-align: left;
+  background: var(--bg-surface);
+  border: none;
+  color: var(--text-primary);
+  min-height: 54px;
+  padding: 14px 16px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.faq-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  padding: 0 16px;
+}
+
+.faq-item.open .faq-panel {
+  padding-bottom: 16px;
+}

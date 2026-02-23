@@ -1,576 +1,733 @@
-You are a senior creative technologist and UI engineer. Build a complete, production-ready, multi-page **marketing website** for a corporate document management platform called **CMR DMS / DocAI**. The website must be deliverable as a static folder — no build step, no server-side runtime, no package manager. A user must be able to drop the folder on any standard web host or local server and browse it immediately.
+You are a senior creative technologist. Build a **single-page interactive web manual** for a corporate document management platform called **CMR DMS / DocAI**. This is not a marketing website. It is a rich, visual, tour-style user manual that guides readers through the platform's features in a flowing, engaging way — the way a beautifully designed product guidebook feels, not a corporate brochure.
+
+The content — the text, images, and videos — is the product. Every structural and design decision must serve the content's readability and exploration. The user should feel like they are being walked through something genuinely worth understanding.
+
+The website must be upload-and-run: drop the folder on any standard web host and browse immediately. No build step, no npm, no server runtime.
 
 ---
 
-## PLATFORM CONTEXT
+## WHAT THIS IS AND IS NOT
 
-**CMR DMS / DocAI** is an enterprise **Document Management System** designed for corporations, government agencies, legal firms, and compliance-heavy organizations. It helps teams:
+**IS:**
+- A visual, scrollable, chapter-based web manual with a living Three.js background throughout
+- A guided tour of all platform features in a logical reading order
+- A place where images and videos are first-class citizens with space to breathe
+- Engaging enough to make users want to keep reading
+- Interactive in-chapter navigation: tab groups, card switchers, and expandable detail panels where the content is dense enough to benefit from it
+- Fast to jump around: sidebar chapter links, a floating "Jump to chapter" quick-nav, and cross-chapter reference links within content
 
-- Upload, organize, search, and track documents centrally across category hierarchies. [Manual §2, §5]
-- Control who can view, edit, download, or sign each file — down to individual page-level permissions. [Manual §4]
-- Automate multi-step approval workflows with graphical progress tracking. [Manual §11]
-- Monitor every document action through a searchable, sortable audit trail. [Manual §14]
-- Collect documents from external users without requiring them to have an account. [Manual §8]
-- Use AI to generate, summarize, deep-search inside, and template documents. [Manual §12]
-- Apply digital signatures and text watermarks to PDFs natively. [Manual §7]
-- Set recurring reminders tied to documents or events with in-app and email delivery. [Manual §10]
-- Manage a directory of clients alongside internal users. [Manual §4]
-- Operate the interface in multiple languages for global teams. [Manual §3]
-- White-label the platform with the organization's own branding and logo. [Manual §3]
-
-The **target market** is mid-to-large enterprises, compliance officers, legal departments, HR teams, and IT administrators who value **precision, security, and control**. The tone is: authoritative, modern, trustworthy — not playful.
+**IS NOT:**
+- A marketing website with hero sections, CTAs, demo request forms, or contact pages
+- A documentation tool with collapsible code blocks
+- A multi-page site with separate pages for each feature
+- Dark, dim, or difficult to read
 
 ---
 
-## AESTHETIC DIRECTION
+## FILE STRUCTURE
 
-**Theme**: Precision-Futurism. Think the intersection of a Bloomberg Terminal and a high-end architecture firm's pitch deck. Dark background, deep navy to near-black. Sharp typographic hierarchy. Controlled use of accent color — a clean electric teal (`#00C9B1`) or cold blue-white — used sparingly as a highlight, never as a flood fill. Grid-based, structured, but broken deliberately by one or two bold artistic elements.
-
-**Mood board concepts to internalize**:
-- CERN / scientific instrument dashboards
-- Satellite imagery HUDs
-- High-altitude aerospace interfaces
-- Architecture blueprints redrawn in light
-
-**Typography**:
-- Display/headline font: `"DM Serif Display"` (from Google Fonts) — gives gravitas and a slight editorial edge.
-- Body/UI font: `"IBM Plex Mono"` for labels and metadata details, `"DM Sans"` for readable body text.
-- Load all from Google Fonts CDN. No fallback to system fonts for display text.
-
-**Color palette**:
-```
---bg-deep:        #07090F   /* near-black, primary background */
---bg-surface:     #0D1117   /* card/panel surfaces */
---bg-elevated:    #141B24   /* elevated panels, nav */
---accent:         #00C9B1   /* teal accent — headlines, glows, CTAs */
---accent-cold:    #4F9CF9   /* cold blue for secondary highlights */
---text-primary:   #E8ECF4   /* main body text */
---text-secondary: #7A8599   /* subtext, labels */
---border:         #1E2A38   /* subtle borders */
---danger:         #F04A4A   /* never used decoratively */
-```
-
-**DO NOT** use purple gradients, white backgrounds, Inter or Roboto fonts, generic card grids with rounded corners and shadows, or any visual pattern that screams "SaaS landing page template."
-
----
-
-## TECH STACK REQUIREMENTS
-
-- **Pure HTML5 + CSS3 + Vanilla JavaScript**. No framework, no bundler, no npm.
-- **Three.js** loaded via CDN (`https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js`). No OrbitControls or other add-ons that require module imports.
-- All other libraries (GSAP, etc.) loaded via CDN if used.
-- **File structure** (create every file listed):
+Organize files logically for clarity and maintainability. Every file below must be created. Add additional JS or CSS files freely wherever it improves separation of concerns — do not cram unrelated logic into one file just to keep the count low.
 
 ```
-/                          ← root
-├── index.html             ← Homepage / Hero
-├── features.html          ← Full feature breakdown
-├── how-it-works.html      ← Workflow / process explainer
-├── ai.html                ← AI capabilities page
-├── security.html          ← Security, audit, compliance page
-├── contact.html           ← Contact / request demo
+/
+├── index.html                  ← The entire manual — one page, all 13 chapters
 ├── css/
-│   ├── global.css         ← Reset, CSS variables, typography, utilities
-│   ├── nav.css            ← Navigation styles
-│   ├── three-canvas.css   ← Canvas positioning and background layer
-│   └── components.css     ← Reusable components (cards, buttons, badges, etc.)
+│   ├── global.css              ← Reset, CSS variables, typography, base layout
+│   ├── layout.css              ← Sidebar, header, content column, chapter containers
+│   ├── components.css          ← Cards, image frames, video players, badges, tables
+│   └── interactive.css         ← Tab groups, card switchers, expandable panels, jump-nav
 ├── js/
-│   ├── three-bg.js        ← Three.js background scene (shared across all pages)
-│   ├── nav.js             ← Navigation behavior (mobile menu, scroll state)
-│   ├── animations.js      ← Scroll-triggered reveals, counters, parallax
-│   └── page-*.js          ← One file per page for page-specific interactions
-├── assets/
-│   ├── logo.png                    ← Caption: "CMR DMS / DocAI logo"
-│   ├── hero-dashboard.png          ← Caption: "Platform dashboard overview"
-│   ├── feature-documents.png       ← Caption: "Document library interface"
-│   ├── feature-sharing.png         ← Caption: "Document sharing and permissions"
-│   ├── feature-workflow.png        ← Caption: "Workflow automation diagram"
-│   ├── feature-ai.png              ← Caption: "AI document generation interface"
-│   ├── feature-ai-summary.png      ← Caption: "AI document summary in action"
-│   ├── feature-audit.png           ← Caption: "Audit trail and compliance view"
-│   ├── feature-signature.png       ← Caption: "Digital signature interface"
-│   ├── feature-search.png          ← Caption: "Deep search results inside documents"
-│   ├── feature-comments.png        ← Caption: "Threaded document comments"
-│   ├── feature-clients.png         ← Caption: "Client directory management"
-│   ├── feature-branding.png        ← Caption: "White-label company profile setup"
-│   ├── feature-multilang.png       ← Caption: "Multi-language interface"
-│   ├── feature-reminders.png       ← Caption: "Reminders and notifications panel"
-│   ├── feature-file-request.png    ← Caption: "File request link creation"
-│   ├── security-diagram.png        ← Caption: "Security architecture overview"
-│   ├── demo-workflow.mp4           ← Caption: "Workflow automation in action"
-│   └── demo-ai.mp4                 ← Caption: "AI document generation demo"
-└── data/
-    └── features.json      ← Feature data used to render feature cards dynamically
-```
-
-**Important**: Every image and video reference in the HTML must use the exact filenames above. Where an image or video does not yet exist (awaiting upload), render a **styled placeholder** with the caption text visible inside it, using CSS only — no placeholder services. Placeholders should look intentional: dark background, thin border in `--border` color, centered caption in `--text-secondary` using IBM Plex Mono. When the real file is uploaded, the placeholder is automatically replaced.
-
----
-
-## THREE.JS BACKGROUND — SPECIFICATION
-
-This is the centerpiece visual. Implement it in `js/three-bg.js` and mount it on every page.
-
-**Concept**: A deep-space particle field of floating geometric **document fragments** — thin flat rectangles (representing documents/sheets) in a 3D field, slowly rotating and drifting. Some have faint luminescent edges. Behind them, a sparse network of nodes connected by hairline edges (representing data flow and document connections). Everything moves subtly — never stops, never distracts.
-
-**Implementation details**:
-
-1. **Canvas**: Full-screen fixed `<canvas id="three-bg">` positioned behind all content with `z-index: -1`. The canvas must never intercept mouse events (`pointer-events: none`).
-
-2. **Document planes**: Create 60–80 `PlaneGeometry(0.4, 0.55)` meshes (document proportions). Use `MeshBasicMaterial` with `wireframe: false`, semi-transparent fill color in the range of `rgba(0, 201, 177, 0.03)` to `rgba(79, 156, 249, 0.05)`. Add a second wireframe plane slightly larger to suggest an edge glow. Distribute randomly in a sphere of radius 12.
-
-3. **Network graph**: Create 25 `SphereGeometry(0.04)` nodes in teal/blue, connected by `LineSegments` using `LineBasicMaterial` at very low opacity (0.08–0.15). Not every node connects to every other — connect each to its 2–3 nearest neighbors only.
-
-4. **Drift animation**: In the `animate()` loop:
-   - Rotate the entire scene slowly: `scene.rotation.y += 0.0003`, `scene.rotation.x += 0.0001`.
-   - Each document plane has an individual slow rotation: `mesh.rotation.z += mesh.userData.rotSpeed` (random 0.0002–0.001).
-   - Each plane has a gentle vertical float: `mesh.position.y += Math.sin(clock + mesh.userData.phase) * 0.0005`.
-
-5. **Mouse parallax**: Listen to `mousemove` on the window. Smoothly shift `camera.position.x` and `camera.position.y` by ±0.5 units based on normalized mouse position. Use lerp for smoothness: `camera.position.x += (targetX - camera.position.x) * 0.05`.
-
-6. **Camera**: `PerspectiveCamera(60, aspect, 0.1, 100)` positioned at `z = 8`. No controls, no user interaction with the 3D scene.
-
-7. **Performance**: Cap the animation loop to 60fps using `requestAnimationFrame`. On mobile (detect `window.innerWidth < 768`), reduce document plane count to 30 and disable mouse parallax.
-
-8. **Resize**: Handle `window.addEventListener('resize')` — update camera aspect ratio and renderer size.
-
----
-
-## NAVIGATION — SPECIFICATION
-
-A fixed top navigation bar, shared across all pages (write it once per HTML file). Behavior defined in `nav.js`.
-
-**Structure**:
-- Left: Logo (`assets/logo.png`) + wordmark "CMR DMS" in DM Serif Display. Falls back gracefully if logo.png is not yet uploaded (show text only).
-- Center: Nav links — Platform, Features, AI, Security, How It Works, Contact.
-- Right: Two buttons — "Request Demo" (ghost style, `--border` colored) and "Get Started" (solid teal, `--accent`).
-
-**Behavior**:
-- On scroll > 50px: nav background transitions from fully transparent to `--bg-elevated` with a `backdrop-filter: blur(12px)` frosted effect and a 1px bottom border in `--border`.
-- Active page link has an underline in `--accent`.
-- Mobile: hamburger menu that slides in a full-height side panel from the right. The panel has the Three.js canvas visible through it (use backdrop blur, not an opaque fill). The hamburger button and all nav links must be keyboard accessible (Enter/Space to toggle, Escape to close).
-
----
-
-## PAGE SPECIFICATIONS
-
----
-
-### `index.html` — Homepage
-
-**Section 1: Hero** [Manual §1 Quick Start, §2 Introduction]
-- Full-viewport height section. Three.js canvas is the background.
-- Centered layout.
-- Eyebrow label: `ENTERPRISE DOCUMENT INTELLIGENCE` in IBM Plex Mono, spaced uppercase, small, teal.
-- H1: `Control Every Document. Automate Every Process.` — in DM Serif Display, very large (clamp 48px → 96px). Line-break after "Document." for dramatic effect.
-- Subheadline: `CMR DMS / DocAI gives compliance-driven organizations a single, intelligent system to manage documents, enforce protocols, and maintain a complete audit trail — with no manual overhead.`
-- Two CTA buttons: "Request a Demo" (solid accent) and "Explore the Platform" (ghost).
-- Below the buttons: a horizontal row of 5 trust badges in IBM Plex Mono micro-text:
-  `256-bit Encryption` / `Full Audit Trail` / `Role-Based Access` / `AI-Assisted` / `Multi-Language`
-- Below the fold: `assets/hero-dashboard.png` in a perspective-tilted container (CSS `transform: perspective(1200px) rotateX(8deg)`) with a subtle teal glow underneath. Placeholder if image missing.
-
-**Section 2: The Problem** [Manual §2 Introduction]
-- Full-width section, dark surface.
-- Left half: Large italic pull quote in DM Serif Display — *"Most enterprise document failures aren't technical. They're structural. The wrong version, in the wrong hands, at the wrong time."*
-- Right half: 4 short problem statements:
-  - `Documents scattered across email threads and shared drives.`
-  - `No visibility into who accessed, edited, approved — or when.`
-  - `Manual approval chains that collapse under compliance pressure.`
-  - `External stakeholders sharing files through untracked channels.`
-
-**Section 3: Platform Overview** [Manual §2, §4–§15 — all feature modules]
-- Eyebrow: `THE PLATFORM`
-- H2: `One system. Every document. Complete control.`
-- 8 feature cards in a CSS Grid (4×2 on desktop, 2×4 on tablet, 1 col on mobile). Each card: icon area (CSS-drawn or Unicode), bold title, two-line description. Cards have a thin `--border` border, hover state lifts with teal edge glow (`box-shadow: 0 0 20px rgba(0,201,177,0.1)`). Features:
-  1. **Document Library** [Manual §5] — Centralized repository with category hierarchy, version history, and expiration tracking.
-  2. **Workflow Automation** [Manual §11] — Multi-step approvals with visual step graphs and real-time status tracking.
-  3. **Role-Based Access** [Manual §4] — Granular permissions by role or individual, down to page-level overrides.
-  4. **AI Document Engine** [Manual §12] — Generate documents, summarize existing files, and deep-search inside content.
-  5. **Signatures & Watermarks** [Manual §7] — Sign and brand PDFs natively, with every action audited and versioned.
-  6. **Audit & Compliance** [Manual §14] — Every action on every document, logged, sortable, and searchable.
-  7. **File Requests** [Manual §8] — Collect documents from anyone via a unique link — no account required.
-  8. **Reminders & Notifications** [Manual §10] — Recurring alerts tied to documents or deadlines, delivered in-app and by email.
-
-**Section 4: Statistics Bar** [Manual §2, §14, §15]
-- Full-width dark band. 4 stats in a row, animated count-up on scroll entry:
-  - `100%` — Documents Accounted For
-  - `< 2s` — AI Generation Start Time
-  - `360°` — Audit Coverage
-  - `∞` — Version History Retained
-- Numbers large in DM Serif Display, labels small in IBM Plex Mono.
-
-**Section 5: Video Demo Teaser** [Manual §11 Workflows]
-- H2: `See the workflow in motion.`
-- An `<video autoplay muted loop playsinline>` element pointing to `assets/demo-workflow.mp4`, styled as a screen/monitor mockup. Styled placeholder if file missing.
-
-**Section 6: CTA Banner**
-- Full width, subtle teal-to-dark gradient strip.
-- H2: `Ready to bring your documents under control?`
-- Single button: "Request a Demo"
-
----
-
-### `features.html` — Full Feature Breakdown
-
-Load feature data from `data/features.json` using `fetch()`. Render each feature entry as an alternating left/right layout section — on odd entries, image left + text right; on even entries, text left + image right. On mobile, image always stacks above text. A thin horizontal rule in `--border` color separates each entry. Each block fades in on scroll entry via Intersection Observer.
-
-Create `data/features.json` with the following complete content — do not truncate or omit any entry:
-
-```json
-[
-  {
-    "id": "document-library",
-    "title": "Document Library",
-    "tagline": "Every file. Every version. Every team.",
-    "manualRef": "Manual §5",
-    "description": "A centralized repository organized by categories and subcategories that mirror your organization's structure. Search by name, meta tag, creation date, category, or storage type. Every document carries an expiration date, a lifecycle status (Draft, Final, Archived), and an access visibility level (Confidential or Public) — two independent controls that work together.",
-    "details": [
-      "Hierarchical categories and subcategories mirroring your org chart",
-      "Filter by name, meta tags, creation date, storage type, and category",
-      "Document expiration dates with automated status updates and user alerts",
-      "Assigned Documents view: personal workspace showing only your allocated files",
-      "Expiration date visible per document — prevents use of outdated materials",
-      "Bulk share: select one, many, or all documents and distribute in a single action",
-      "Full version history — restore any previous version as the current active document"
-    ],
-    "image": "feature-documents.png",
-    "imageCaption": "Document library interface"
-  },
-  {
-    "id": "sharing-access",
-    "title": "Sharing & Access Control",
-    "tagline": "Exactly the right people. Nothing more.",
-    "manualRef": "Manual §7",
-    "description": "Share documents with individual users or entire roles. Set time-bounded access with a start and end date. Enable or disable download per share. Send email notifications at share time. Generate password-protected public links with expiry dates for external stakeholders — no account needed.",
-    "details": [
-      "Assign access by individual user or by role",
-      "Set start and end dates for any permission — access auto-expires",
-      "Enable or disable download per individual share",
-      "Email notification to recipients at share time (requires SMTP configuration)",
-      "Password-protected shareable links for external users with expiry date",
-      "Revoke access instantly by removing a user or role from the shared list",
-      "Permissions list updates in real time after every change"
-    ],
-    "image": "feature-sharing.png",
-    "imageCaption": "Document sharing and permissions"
-  },
-  {
-    "id": "workflow-automation",
-    "title": "Workflow Automation",
-    "tagline": "Multi-step approvals. Zero chasing.",
-    "manualRef": "Manual §11",
-    "description": "Build approval and review workflows with named steps and transitions. Assign each step to a user or team. Track progress in a visual graph and a detailed table. Every workflow — completed, in progress, initiated, or cancelled — is logged for compliance.",
-    "details": [
-      "Create workflows with unlimited named steps and transition rules",
-      "Assign each step to individual users or roles",
-      "Visual graph view shows completed vs pending transitions at a glance",
-      "All Workflows page: admin view of every workflow across the organization",
-      "My Workflows page: personal view of only the workflows you're authorized to manage",
-      "Workflow Logs: complete audit trail of all workflow activity — who did what, when",
-      "Four statuses tracked: Completed, In Progress, Initiated, Cancelled"
-    ],
-    "image": "feature-workflow.png",
-    "imageCaption": "Workflow automation diagram"
-  },
-  {
-    "id": "ai-engine",
-    "title": "AI Document Engine",
-    "tagline": "Generate. Summarize. Search inside. Automate.",
-    "manualRef": "Manual §12, §5",
-    "description": "Use AI to generate complete documents from a plain-language prompt — privacy policies, NDAs, compliance reports — with real-time content streaming into a rich text editor. Summarize any existing document in seconds. Deep Search scans the content inside PDFs, Word documents, and spreadsheets. Prompt templates accelerate repeat document creation.",
-    "details": [
-      "AI document generation with real-time content streaming (starts in under 2 seconds)",
-      "AI Summary: generate an instant summary of any existing document directly from the document menu",
-      "Deep Search scans inside PDF, DOCX, XLSX, and TXT files — not just filenames",
-      "Top 10 most relevant results returned per deep search query",
-      "Case-insensitive search with word stemming (searching 'run' finds 'running', 'runs')",
-      "Prompt templates with customizable placeholders for frequently generated document types",
-      "Full AI generation history: view every past prompt and its generated output"
-    ],
-    "image": "feature-ai.png",
-    "imageCaption": "AI document generation interface"
-  },
-  {
-    "id": "signatures-watermarks",
-    "title": "Digital Signatures & Watermarks",
-    "tagline": "Finalize documents without leaving the platform.",
-    "manualRef": "Manual §7",
-    "description": "Sign PDFs by drawing or typing your signature, drag it to the right position, and save. Apply text watermarks across all PDF pages. Every signed or watermarked file is saved as a new version, preserving the original, with full audit logging of every action.",
-    "details": [
-      "Draw or type your signature with professional font style selection",
-      "Place signatures anywhere on the PDF via drag — no position restrictions",
-      "Include company profile details alongside the signature",
-      "Text watermarks applied diagonally across all PDF pages automatically",
-      "Every signature and watermark action creates a new document version",
-      "Originals are always preserved in version history",
-      "Audit trail captures who signed or watermarked, what text was used, and when"
-    ],
-    "image": "feature-signature.png",
-    "imageCaption": "Digital signature interface"
-  },
-  {
-    "id": "audit-compliance",
-    "title": "Audit Trail & Compliance",
-    "tagline": "Nothing moves without a record.",
-    "manualRef": "Manual §14",
-    "description": "Every action on every document is logged: uploads, edits, shares, downloads, signatures, watermarks, version restores, and deletions. Search and sort the audit trail by document, user, category, or operation type. Click any entry to navigate directly to the associated document.",
-    "details": [
-      "Complete log of every document action: uploads, edits, shares, deletes, signatures, restores",
-      "Searchable by document name, meta tag, and user",
-      "Sortable by date, operation, category, performed by, and directed to user or role",
-      "Login Audit Logs: every authentication attempt recorded with username, IP, timestamp, and outcome",
-      "Email Logs: full delivery tracking per email — status, bounce reasons, error codes",
-      "Cron Job Logs: visibility into all 12 automated background tasks and their execution history",
-      "Workflow Logs: complete audit trail for all workflow steps and transitions"
-    ],
-    "image": "feature-audit.png",
-    "imageCaption": "Audit trail and compliance view"
-  },
-  {
-    "id": "file-requests",
-    "title": "File Requests",
-    "tagline": "Collect documents without accounts or friction.",
-    "manualRef": "Manual §8",
-    "description": "Generate a unique link, set file type and size restrictions, and share it with anyone — no account required. Recipients upload files through the link. Review, approve, or reject submissions with written feedback. Track status per submission.",
-    "details": [
-      "Unique link per request — share with any external user, no login required",
-      "Restrict by allowed file extensions, maximum file size, and upload count",
-      "Set a link expiration date — the link becomes inactive after the deadline",
-      "Preview PDF, DOCX, JPG, and PNG submissions before approving or rejecting",
-      "Reject with a written comment (e.g., 'Please upload a PDF' or 'Missing signatures')",
-      "Status per submission: Pending, Approved, or Rejected",
-      "Edit, delete, or copy the link for any request at any time"
-    ],
-    "image": "feature-file-request.png",
-    "imageCaption": "File request link creation"
-  },
-  {
-    "id": "comments-collaboration",
-    "title": "Comments & Collaboration",
-    "tagline": "Discussion stays with the document.",
-    "manualRef": "Manual §6",
-    "description": "Add threaded comments directly to any document. Other users with access can view and reply, creating a conversation thread attached to the file — not buried in email. Discussion, feedback, and decisions stay in context, always alongside the document they relate to.",
-    "details": [
-      "Add comments to any document from the document action menu",
-      "Threaded replies keep discussions organized and contextual",
-      "Visible to all users with access to the document",
-      "No separate tool or email chain needed — feedback lives with the file",
-      "Works alongside sharing, versioning, and reminders for a complete collaboration loop"
-    ],
-    "image": "feature-comments.png",
-    "imageCaption": "Threaded document comments"
-  },
-  {
-    "id": "reminders-notifications",
-    "title": "Reminders & Notifications",
-    "tagline": "No deadline slips through.",
-    "manualRef": "Manual §10",
-    "description": "Set recurring reminders tied to documents or general events, delivered in-app and by email. Notifications fire in real time when documents are shared with you or when workflow transitions occur. Twelve automated background jobs run on schedule to ensure no reminder or notification is ever missed.",
-    "details": [
-      "Reminders tied to specific documents or general tasks and events",
-      "Recurrence options: Daily, Weekly, Monthly, Semi-annual, and Custom date",
-      "Delivered via both in-app notifications and email",
-      "Real-time notification when a document is shared with you",
-      "External users who receive shared documents get a secure access link by notification",
-      "12 scheduled cron jobs handle daily, weekly, monthly, quarterly, semi-annual, and yearly reminders automatically",
-      "My Reminders panel visible directly from the Assigned Documents page"
-    ],
-    "image": "feature-reminders.png",
-    "imageCaption": "Reminders and notifications panel"
-  },
-  {
-    "id": "user-access-management",
-    "title": "User & Access Management",
-    "tagline": "The right access. For the right people. Always.",
-    "manualRef": "Manual §4",
-    "description": "Create and manage user accounts, define role-based permission sets, and assign users to roles via drag-and-drop. Grant individual page-level permission overrides for edge cases beyond roles. Maintain a client directory of external contacts alongside internal users.",
-    "details": [
-      "Add, edit, delete users — and reset passwords — from a single admin page",
-      "Define roles with granular permissions: view, edit, delete, share, sign, manage users, and more",
-      "Assign users to roles via drag-and-drop: move from All Users to Users with Role",
-      "Individual permission overrides: grant specific page access outside a user's role",
-      "Client directory: maintain external company contacts, contact persons, email, and mobile numbers",
-      "Permissions visible and editable per user from the user action menu",
-      "All access changes are reflected immediately — no cache delay"
-    ],
-    "image": "feature-sharing.png",
-    "imageCaption": "Role and user access management"
-  },
-  {
-    "id": "branding-localization",
-    "title": "White-Label Branding & Multi-Language",
-    "tagline": "Your platform. Your identity. Any language.",
-    "manualRef": "Manual §3",
-    "description": "Replace the platform's identity with your own. Upload your company logo and banner for the login screen. Set your company name as the browser tab title. Support global teams by enabling multiple languages — administrators can add, update, or remove language options at any time.",
-    "details": [
-      "Upload company logo displayed in the login page header (PNG/JPG, max 2 MB)",
-      "Upload banner logo displayed prominently on the login screen (PNG/JPG, max 3 MB)",
-      "Company name appears dynamically as the browser tab title",
-      "Live preview shown immediately after each logo upload",
-      "Multi-language interface: administrators add, update, or delete supported languages",
-      "Users interact with the full platform in their configured language",
-      "Branding applied system-wide — every user sees your identity from the first login"
-    ],
-    "image": "feature-branding.png",
-    "imageCaption": "White-label company profile setup"
-  },
-  {
-    "id": "storage-admin",
-    "title": "Storage, Extensions & Admin Controls",
-    "tagline": "Infrastructure that fits your security policy.",
-    "manualRef": "Manual §13",
-    "description": "Configure where documents are stored — local server or AWS S3 with encryption. Control which file types users can upload by managing the allowed extensions list. Customize in-app help text on every page of the platform. Configure outgoing email through any SMTP server.",
-    "details": [
-      "Local storage built in as the default — cannot be deleted, always available",
-      "AWS S3 cloud storage with Access Key, Secret Key, and Bucket Name configuration",
-      "Enable encryption: files stored in encrypted form within the chosen storage",
-      "Test connection on save — system uploads a dummy file to verify before applying settings",
-      "Allowed File Extensions: restrict uploads to specific file types platform-wide",
-      "SMTP email configuration: support multiple servers, set one as the default",
-      "Page Helpers: administrators can edit in-app guidance text for every platform page",
-      "Archive retention periods: 30, 60, 90, 180, or 365 days — auto-delete on schedule"
-    ],
-    "image": "security-diagram.png",
-    "imageCaption": "Storage and admin configuration"
-  }
-]
+│   ├── three-bg.js             ← Three.js scene: live background running on all chapters
+│   ├── three-hero.js           ← Three.js scene: enhanced hero-section overlay (additive)
+│   ├── sidebar.js              ← Chapter navigation, scroll tracking, progress indicator
+│   ├── animations.js           ← Intersection Observer scroll reveals, smooth transitions
+│   ├── tabs.js                 ← In-chapter tab groups and card switchers
+│   └── chapters.js             ← Chapter-specific logic: videos, accordions, jump nav
+├── data/
+│   └── chapters.json           ← Chapter metadata (IDs, titles, icon keys) for sidebar
+└── assets/                     ← Already exists — do not recreate. Reference by path only.
 ```
 
 ---
 
-### `how-it-works.html` — Process Explainer
+## ASSETS MANIFEST
 
-**Section 1**: Hero. Eyebrow: `HOW IT WORKS`. H1: `From upload to audit, fully automated.` Subheading: `CMR DMS / DocAI is built around a repeating loop: organize, control, automate, monitor. Here is how it fits together.` [Manual §1 Quick Start]
+Every image and video reference must use exactly these filenames. Render a styled placeholder for any file not yet present — dark-bordered frame with the caption centered in monospace text. Never use broken image icons or external placeholder services.
 
-**Section 2**: Vertical timeline — 6 numbered steps connected by a vertical teal line. [Manual §1, §3, §4, §5, §6, §7, §10, §11]
+```
+assets/logo.png                ← Header brand mark
+assets/hero-dashboard.png      ← Hero section dashboard screenshot
+assets/feature-documents.png   ← Document library chapter
+assets/feature-sharing.png     ← Sharing & access chapter + user mgmt chapter
+assets/feature-workflow.png    ← Workflows chapter
+assets/feature-ai.png          ← AI chapter (annotated screenshot)
+assets/feature-ai-summary.png  ← AI chapter (summary panel visual)
+assets/feature-audit.png       ← Audit & logs chapter
+assets/feature-signature.png   ← Signatures & watermarks chapter
+assets/feature-search.png      ← Search chapter
+assets/feature-comments.png    ← Comments & collaboration chapter
+assets/feature-clients.png     ← User management / clients chapter
+assets/feature-branding.png    ← Administration chapter (branding section)
+assets/feature-multilang.png   ← Administration chapter (language section)
+assets/feature-reminders.png   ← Reminders & notifications chapter
+assets/feature-file-request.png ← File requests chapter
+assets/security-diagram.png    ← Audit & logs / administration chapter
+assets/demo-workflow.mp4       ← Workflows chapter embedded video
+assets/demo-ai.mp4             ← AI chapter embedded video
+```
 
-1. **Configure your foundation** [Manual §3, §4, §13]
-   Set up your company branding (logo, banner, browser title). Define document categories and subcategories that mirror your org chart. Choose your storage backend (local or AWS S3 with encryption). Configure allowed file types and set your SMTP server for email notifications.
+---
 
-2. **Build your team and permissions** [Manual §4]
-   Create user accounts and define roles with granular permission sets. Assign users to roles via drag-and-drop. Grant individual page-level permission overrides for edge cases. Add external clients to the client directory for reference alongside internal users.
+## COLOR PALETTE & AESTHETIC DIRECTION
 
-3. **Upload and organize** [Manual §5, §6]
-   Upload single files or batches. Set category, access visibility (Confidential / Public), and lifecycle status (Draft / Final / Archived). Add meta tags for searchability. Assign access to specific roles or users at upload time. Set expiration dates to prevent outdated documents from circulating.
+**Theme**: Bright Clarity. Clean, vibrant, and professional — the kind of interface that feels like it was made by people who care about the reader. Think well-designed enterprise documentation with genuine visual warmth. Think clear sky, crisp paper, and purposeful color. NOT dark. NOT dim. NOT depressing.
 
-4. **Collaborate, share, and finalize** [Manual §7, §6, §8, §10]
-   Share documents with time-bounded access and optional download permissions. Generate password-protected external links. Add comments directly to documents for threaded, contextual discussion. Send documents by email, apply digital signatures, or add text watermarks — all from within the platform. Collect files from external parties via file request links. Set recurring reminders tied to documents or deadlines, delivered by email and in-app.
+**Color inspiration**: Bright sky blue, vibrant teal-green, clean white backgrounds, with blue as the dominant identity color and green-teal as a lively accent. This matches the platform's existing visual identity.
 
-5. **Automate workflows and approvals** [Manual §11]
-   Design multi-step approval workflows with named steps and transitions. Assign each step to the right user or role. Track progress in a visual graph — completed transitions in teal, pending ones in subdued tone. Receive notifications at every transition point. View all workflows organization-wide or filter to just yours.
+```css
+/* CSS Variables — use all of these */
+--blue-900:    #0D3B6E;   /* deep navy — used for main headings */
+--blue-700:    #1565C0;   /* primary blue — buttons, active states, chapter numbers */
+--blue-500:    #2196F3;   /* mid blue — links, highlights */
+--blue-100:    #DDEEFF;   /* very light blue — section backgrounds, alternating rows */
+--blue-50:     #F0F7FF;   /* near-white blue — page background */
+--teal-600:    #00897B;   /* teal — accent on cards, step indicators, tags */
+--teal-400:    #26C6B0;   /* lighter teal — hover states, glows */
+--green-600:   #2E7D32;   /* deep green — success states, checkmarks */
+--green-400:   #66BB6A;   /* mid green — badge fills */
+--white:       #FFFFFF;   /* card surfaces, content panels */
+--gray-800:    #1A2332;   /* primary body text */
+--gray-500:    #5A6A7A;   /* secondary text, captions */
+--gray-200:    #D8E6F3;   /* borders, dividers */
+--gray-100:    #EEF4FB;   /* alternate row backgrounds */
+--shadow-soft: 0 4px 24px rgba(21, 101, 192, 0.10);
+--shadow-card: 0 2px 12px rgba(21, 101, 192, 0.08);
+--radius:      12px;
+--radius-sm:   8px;
+```
 
-6. **Monitor and comply** [Manual §14, §15]
-   Review the full document audit trail — sortable and searchable by document, user, operation, or date. Monitor login audit logs for security visibility. Check email delivery logs and cron job execution logs for operational health. Apply archive retention policies to auto-delete documents after 30, 60, 90, 180, or 365 days.
+**DO NOT USE**: dark backgrounds as the primary surface, purple in any form, Inter or Roboto fonts, all-caps IBM Plex Mono everywhere (use it sparingly for labels only), or any pattern that makes the page feel like a terminal or a dark SaaS landing page.
 
-**Section 3**: Video block — `assets/demo-workflow.mp4` styled as a dark monitor frame. Placeholder if missing. [Manual §11]
+---
 
-**Section 4**: Two-column comparison — **Before CMR DMS** vs **After CMR DMS** [Manual §2]
+## TYPOGRAPHY
 
-| Before | After |
+Load from Google Fonts CDN — include in `<head>`:
+```html
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+```
+
+- **Chapter titles / H1–H2**: `Lora` serif — warmth, authority, readable at large sizes. The italic variant for pull quotes and callouts.
+- **Body text / UI copy**: `Plus Jakarta Sans` — clean, rounded, friendly but professional. 400 weight for body, 600 for subheadings.
+- **Labels, tags, captions, step numbers, version badges**: `Fira Code` monospace — only for these specific micro-elements, never for body paragraphs.
+
+**Type scale**:
+```css
+h1 { font: 700 clamp(2rem, 5vw, 3.5rem)/1.15 'Lora', serif; color: var(--blue-900); }
+h2 { font: 700 clamp(1.5rem, 3vw, 2.2rem)/1.2 'Lora', serif; color: var(--blue-900); }
+h3 { font: 600 clamp(1.1rem, 2vw, 1.4rem)/1.3 'Plus Jakarta Sans', sans-serif; color: var(--blue-700); }
+p  { font: 400 1rem/1.75 'Plus Jakarta Sans', sans-serif; color: var(--gray-800); max-width: 68ch; }
+```
+
+---
+
+## THREE.JS BACKGROUND — TWO-LAYER SPECIFICATION
+
+Three.js runs in **two layers**:
+
+1. **`three-bg.js` — Full-page live background**: A fixed canvas behind all page content, visible through every chapter as the user scrolls. Subtle, never distracting. Uses the same bright-palette document-fragment concept described below but at low intensity (opacity reduced ~40% from hero values) so it does not compete with chapter text.
+
+2. **`three-hero.js` — Hero overlay**: A second canvas scoped to the hero section container with higher intensity, richer animation, and the mouse parallax effect. When the hero scrolls out of view, this canvas pauses to save CPU. The full-page canvas keeps running at its low-intensity level throughout.
+
+Both canvases use `pointer-events: none` and `z-index` values that keep them behind all readable content.
+
+The full-page canvas in `three-bg.js` sits at `position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0`. The main content sits at `z-index: 1`. The hero canvas sits at `z-index: 0` within the hero section's stacking context.
+
+---
+
+### `three-bg.js` — Full-Page Background
+
+**Concept**: Very gentle, continuous. The same floating document plane field as the hero, but more sparse and more transparent. A slow drift the reader can feel but never consciously notices.
+
+- **Document planes**: 30 (desktop) / 15 (mobile). Same `PlaneGeometry(0.5, 0.65)`. Colors: `0xFFFFFF` at opacity 0.25 and `0x2196F3` at opacity 0.05. Wireframe edges in `0x90CAF9` at opacity 0.08.
+- **No connection lines** in the background scene — those are hero-only.
+- **Animation**: Scene rotates at half the hero speed. No individual mesh float (saves performance). No mouse parallax in the background layer.
+- **Performance**: Use `requestAnimationFrame` at 30fps cap for the background (every other frame). On mobile reduce to 10 planes.
+- **Resize**: Update on window resize.
+
+---
+
+### `three-hero.js` — Hero Section Enhanced Overlay
+
+**Concept**: A soft, luminous field of floating document shapes on a gradient blue sky — documents gently orbiting, carrying data. Warm, professional, visually alive. Not dark space. Not particles.
+
+**Implementation in `js/three-hero.js`**:
+
+1. **Canvas setup**: `<canvas id="hero-canvas">` inside the hero section. Position it absolute, fill the hero section bounds (not the entire page). `z-index: 0`. Hero text and intro content sit above it at `z-index: 1`. `pointer-events: none` on canvas.
+
+2. **Background**: Use `renderer.setClearColor(0xDDEEFF, 1)` — a soft blue. The CSS hero section has a gradient from `var(--blue-100)` to `var(--blue-50)` as a fallback.
+
+3. **Document planes**: 40 `PlaneGeometry(0.5, 0.65)` planes. Material: `MeshBasicMaterial`, colors alternating between `0xFFFFFF` (opacity 0.7) and `0x2196F3` (opacity 0.12). Add a wireframe companion mesh in `0x1565C0` at opacity 0.15 to suggest paper edges. Scatter in a hemisphere above the viewer, radius 10.
+
+4. **Gentle lines**: 15 thin connection lines between random document pairs using `LineBasicMaterial({ color: 0x90CAF9, opacity: 0.2, transparent: true })`. These suggest data flow.
+
+5. **Animation loop**:
+   - Whole group slowly rotates: `group.rotation.y += 0.0002`.
+   - Each plane has individual vertical float: `mesh.position.y += Math.sin(Date.now() * 0.001 + mesh.userData.phase) * 0.003`.
+   - Each plane has very slow individual Z rotation: `mesh.rotation.z += mesh.userData.spin` (random 0.0001–0.0005).
+
+6. **Camera**: `PerspectiveCamera(55, aspect, 0.1, 50)` at `z = 7`. No user interaction.
+
+7. **Mouse parallax** on desktop only: gentle `camera.position.x` and `.y` shift ±0.3 units, lerped at 0.04.
+
+8. **Mobile**: If `window.innerWidth < 768`, reduce planes to 20, disable mouse parallax, halve line count.
+
+9. **Resize**: Update camera aspect and renderer size on `window.resize`.
+
+10. **On scroll**: Once the hero section scrolls out of view (hero bottom crosses viewport top), pause the animation loop with `cancelAnimationFrame`. Resume when it re-enters. This preserves CPU for reading.
+
+---
+
+## PAGE ARCHITECTURE
+
+This is a **single HTML file** (`index.html`) with a two-column layout:
+
+```
+┌──────────────────────────────────────────────────────┐
+│  HEADER  (logo + manual title + chapter count)       │
+├──────────────┬───────────────────────────────────────┤
+│              │                                       │
+│  SIDEBAR     │   CONTENT AREA                        │
+│  (fixed,     │   (scrollable, full chapters)         │
+│  left)       │                                       │
+│              │                                       │
+└──────────────┴───────────────────────────────────────┘
+```
+
+### HEADER (fixed, full width)
+- Height: 60px on desktop, 56px on mobile.
+- Background: `var(--white)` with a 1px bottom border in `var(--gray-200)` and a soft shadow.
+- Left: `assets/logo.png` (32px height, auto width) + platform name **"CMR DMS / DocAI"** in Lora 600.
+- Right: **"User Manual"** label in Fira Code, small, `var(--blue-700)` color. And a chapter progress indicator: `Chapter 3 of 13` updated dynamically as user scrolls.
+- On mobile: logo + title only. Hamburger icon (☰) to toggle sidebar drawer.
+
+### SIDEBAR (fixed left, scrolls independently)
+- Width: 280px on desktop. Full-screen drawer on mobile (slides in from left on hamburger tap).
+- Background: `var(--white)`, right border `1px var(--gray-200)`.
+- Top of sidebar: a thin progress bar (full width, 4px tall) in `var(--blue-700)` that fills from 0% to 100% as the user scrolls through the full page.
+- Chapter list: 13 chapters listed vertically. Each item shows:
+  - A chapter number badge: small circle in `var(--blue-700)` with white Fira Code number.
+  - Chapter title in Plus Jakarta Sans 500.
+  - A completion dot (filled teal circle) once that chapter has been scrolled past.
+- Active chapter is highlighted: left border 3px `var(--blue-700)`, background `var(--blue-50)`, text `var(--blue-700)` bold.
+- Clicking a chapter smoothly scrolls to that section (`scroll-behavior: smooth`).
+- Below the chapter list: a thin rule, then the logo repeated small, then platform name + "User Manual v2" in Fira Code.
+
+### CONTENT AREA (right of sidebar, scrollable)
+- Left margin = sidebar width. Right padding generous.
+- Maximum content width: 900px (centered within the content area).
+- This is where all 13 chapters live, stacked vertically.
+
+---
+
+## CHAPTER LAYOUT SYSTEM
+
+Every chapter follows this structure. No exceptions. No inconsistency.
+
+```html
+<section class="chapter" id="ch-N" data-chapter="N">
+  <div class="chapter-header">
+    <span class="chapter-number">Chapter N</span>
+    <h2 class="chapter-title">Title Here</h2>
+    <p class="chapter-intro">One or two sentence overview of this chapter.</p>
+  </div>
+  <div class="chapter-body">
+    <!-- Feature blocks, images, videos, tables, step lists go here -->
+  </div>
+</section>
+```
+
+**Chapter header styling**:
+- `chapter-number`: Fira Code, small, `var(--blue-500)`, uppercase, letter-spacing 0.15em. Example: `CHAPTER 01`.
+- `chapter-title`: Lora 700, large, `var(--blue-900)`.
+- `chapter-intro`: Plus Jakarta Sans 400, `var(--gray-500)`, italic, `max-width: 60ch`.
+- A horizontal rule after the intro: 2px, gradient from `var(--blue-700)` to `var(--teal-400)`, width 80px. Not full-width — a short decorative accent.
+
+**Within `chapter-body`**, use these sub-components:
+
+#### Feature Block (main repeating unit)
+```
+┌──────────────────────────┐
+│  image (full width or    │
+│  half width on desktop)  │
+├──────────────────────────┤
+│  h3 Feature Name         │
+│  body text paragraph     │
+│  detail list             │
+└──────────────────────────┘
+```
+On desktop ≥ 900px: image left (55% width), text right (40% width), with gap. On mobile: image stacks above text.
+
+The image is displayed in a `.img-frame` div:
+```css
+.img-frame {
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--gray-200);
+  background: var(--gray-100);
+  aspect-ratio: 16/10;
+  display: flex; align-items: center; justify-content: center;
+}
+.img-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+```
+Placeholder styling when image is missing: `background: var(--blue-50)`, centered caption text in `Fira Code var(--gray-500)`.
+
+#### Step List
+Numbered steps with a visual connector line:
+```css
+.step-list { list-style: none; padding: 0; position: relative; }
+.step-list::before { content:''; position: absolute; left: 16px; top: 0; bottom: 0;
+  width: 2px; background: linear-gradient(to bottom, var(--blue-700), var(--teal-400)); }
+.step-item { padding: 0 0 24px 48px; position: relative; }
+.step-number { position: absolute; left: 0; top: 0; width: 32px; height: 32px;
+  border-radius: 50%; background: var(--blue-700); color: white;
+  font: 500 0.8rem/32px 'Fira Code'; text-align: center; }
+```
+
+#### Detail List (feature bullet points)
+Teal checkmark bullets using a Unicode `✦` or CSS `::before` in `var(--teal-600)`. Clean left-aligned list, `1.8rem` line height, no extra margin madness.
+
+#### Info Box / Note
+```css
+.info-box {
+  background: var(--blue-50);
+  border-left: 4px solid var(--blue-500);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 16px 20px;
+  margin: 24px 0;
+}
+```
+Use for "Note:", tips, or important clarifications from the manual.
+
+#### Video Block
+```html
+<div class="video-frame">
+  <video src="assets/demo-workflow.mp4" autoplay muted loop playsinline controls></video>
+  <p class="video-caption">Caption text here</p>
+</div>
+```
+```css
+.video-frame {
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  background: var(--blue-900);
+  margin: 32px 0;
+}
+.video-frame video { width: 100%; display: block; }
+.video-caption { font: 400 0.85rem 'Fira Code'; color: var(--gray-500); text-align:center; padding: 12px; }
+```
+If the `.mp4` file is missing, show a placeholder frame with a ▶ play icon drawn in CSS and the caption text.
+
+#### Comparison Table
+A two-column table for Before/After comparisons. First column: light red-tinted background `#FFF0F0`, text `#B71C1C`. Second column: light green-tinted background `#F0FFF4`, text `var(--green-600)`. No heavy borders — just subtle row separators.
+
+#### Data Table (for cron jobs, audit fields, etc.)
+```css
+.data-table { width: 100%; border-collapse: collapse; font-family: 'Plus Jakarta Sans'; font-size: 0.9rem; }
+.data-table th { background: var(--blue-700); color: white; padding: 10px 16px; text-align: left; font-weight: 600; }
+.data-table td { padding: 10px 16px; border-bottom: 1px solid var(--gray-200); }
+.data-table tr:nth-child(even) td { background: var(--gray-100); }
+.data-table tr:hover td { background: var(--blue-50); }
+```
+
+#### Chapter Divider
+Between chapters: a full-width `<hr>` styled as a soft gradient line `var(--blue-100)` to transparent, plus a chapter number watermark centered above the next chapter in giant faint Lora italic.
+
+---
+
+## HERO SECTION (before Chapter 1)
+
+Above all chapters, a hero intro section. This is the only place Three.js is used.
+
+```html
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge">USER MANUAL</div>
+    <h1>CMR DMS / DocAI</h1>
+    <p class="hero-subtitle">
+      A complete guide to the platform — from your first upload to a fully automated,
+      audited, AI-assisted document operation.
+    </p>
+    <div class="hero-meta">
+      <span>13 Chapters</span>
+      <span>·</span>
+      <span>Full Feature Coverage</span>
+      <span>·</span>
+      <span>DocAI_User_Manual_v2</span>
+    </div>
+    <div class="hero-quick-start">
+      <h3>Quick Start</h3>
+      <ol>
+        <li>Find your documents in <strong>All Documents</strong> or <strong>Assigned Documents</strong>.</li>
+        <li>Upload using <strong>Add Document</strong> or <strong>Bulk Upload</strong> for multiple files.</li>
+        <li>Control access via <strong>Share Document</strong> or a <strong>Shareable Link</strong>.</li>
+        <li>Stay on track with <strong>Reminders</strong> and <strong>Notifications</strong>.</li>
+        <li>Automate processes with <strong>Workflows</strong> and review in <strong>Workflow Logs</strong>.</li>
+      </ol>
+    </div>
+    <a href="#ch-1" class="hero-cta">Start Reading ↓</a>
+    <img src="assets/hero-dashboard.png" class="hero-dashboard" alt="Platform dashboard overview">
+  </div>
+</section>
+```
+
+Hero styling:
+- Section min-height: `100vh`. Background: CSS gradient `linear-gradient(160deg, #DDEEFF 0%, #F0F7FF 60%, #E8F5E9 100%)`.
+- Canvas fills the section absolutely behind content.
+- `.hero-badge`: Fira Code, tiny, `var(--blue-700)` color, `var(--blue-100)` background, border-radius 4px, padding 4px 10px. Letter spacing 0.2em.
+- `h1`: Lora 700, very large. `var(--blue-900)`.
+- `.hero-subtitle`: Plus Jakarta Sans 300, large, `var(--gray-800)`, max-width 52ch.
+- `.hero-meta`: Fira Code, small, `var(--gray-500)`. Dot separators.
+- `.hero-quick-start`: A compact, clean-bordered box (`border: 1px solid var(--gray-200)`, `background: rgba(255,255,255,0.85)`, `border-radius: var(--radius)`, `padding: 24px`). Numbered list with `var(--blue-700)` number color. Strong elements in `var(--blue-700)`.
+- `.hero-cta`: A clean button. `background: var(--blue-700)`, white text, Lora 600, `border-radius: var(--radius-sm)`, generous padding, hover lifts with `box-shadow: 0 8px 24px rgba(21,101,192,0.3)`, `transform: translateY(-2px)`. Smooth transition.
+- `.hero-dashboard`: The dashboard screenshot. Display it below the intro text. `width: 100%; max-width: 860px; border-radius: var(--radius); box-shadow: 0 16px 64px rgba(21,101,192,0.18); border: 1px solid var(--gray-200); margin-top: 40px`. On desktop: perspective tilt `transform: perspective(1400px) rotateX(5deg)`. Remove tilt on mobile.
+
+---
+
+## ALL 13 CHAPTERS — FULL CONTENT SPECIFICATION
+
+Every chapter below maps directly to a section of `DocAI_User_Manual_v2.md`. The chapter number badge, title, and intro must be exactly as specified. All detail text must come from the manual — do not invent or paraphrase beyond what is there.
+
+---
+
+### Chapter 1 — Getting Started
+**ID**: `ch-1` | **Manual**: §3
+
+**Intro**: *The first things an administrator should configure before onboarding users.*
+
+**Sub-section: Homepage — Documents by Category**
+Body text: The homepage displays document statistics organized by category, showing the total count per category. Use it as your dashboard overview every time you log in — at a glance you can see which departments have the most or fewest files.
+
+**Sub-section: Company Profile**
+Body text from manual §3 Company Profile. Display as a **step list** (3 steps: Enter name → Upload logo → Upload banner → Save). After the steps, an info box: *"The company name you enter here will appear dynamically as the browser tab title across the entire platform."*
+
+Fields table — render as a two-column `.data-table`:
+| Field | Requirement |
 |---|---|
-| Documents scattered across emails and shared drives | Centralized, searchable library with category hierarchy |
-| Manual email approval chains | Automated multi-step workflows with visual tracking |
-| No version control — overwritten files | Complete version history with one-click restore |
-| No record of who accessed or modified what | Full audit trail, searchable by document, user, and date |
-| External file collection via email attachments | Controlled file request links with type and size limits |
-| Compliance reporting done manually | Automated retention policies and exportable audit logs |
+| Company Name | 2–50 characters. Appears as browser tab title. |
+| Logo | PNG/JPG/JPEG, max 2 MB. Recommended: 200×100px. Shown in login page header. |
+| Banner Logo | PNG/JPG/JPEG, max 3 MB. Recommended: 1200×300px. Shown on login screen below header. |
 
-Render "Before" column in a dimmer palette with subtle red dash indicators. Render "After" column with teal checkmarks and full brightness.
+**Sub-section: Your User Profile**
+Fields as a `.data-table` (two columns: Field, Description) — all 7 fields from the manual (First Name, Last Name, Mobile Number, Email Address, Password, Confirm Password, Role). Info box: *"Fields with errors are highlighted with inline messages. Click Submit once all required fields are filled in correctly."*
 
----
+**Sub-section: Language Settings**
+Short paragraph from manual §3 Language Settings. Info box with teal left border: *"Administrators can add, update, and remove language options at any time. Users interact with the full platform in their configured language."*
 
-### `ai.html` — AI Capabilities [Manual §12, §5]
-
-**Section 1**: Full-viewport hero. H1: `Document Intelligence, Built In.` Subtext: `Generate, summarize, search inside, and template — AI built into the document layer, not bolted on top.` Three.js background with conditional pulsing glow sphere activated only on this page: check `document.body.dataset.page === 'ai'` and add a `PointLight` with color `#00C9B1` and intensity that pulses using `Math.sin(clock)`.
-
-**Section 2**: Four feature cards in a 2×2 grid (2 col desktop, 1 col mobile) [Manual §12]:
-
-- **AI Document Generator** [Manual §12 §AI Document Generator]
-  Describe a document in plain language. The system writes it in real time, streaming content directly into a rich text editor. Starts in under 2 seconds. Edit, format, and save without leaving the platform. Every generation event — including the original prompt — is stored and retrievable in the AI Document List.
-
-- **AI Document Summary** [Manual §5 — document action menu, §12]
-  Select any document already in your library and generate an instant AI summary. Useful for reviewing lengthy files, onboarding team members, or quickly extracting the key points of a policy or contract without reading the full document.
-
-- **Deep Search** [Manual §9]
-  Search inside the content of PDFs, Word documents, Excel spreadsheets, and text files — not just filenames or tags. Case-insensitive, with word stemming (searching "approve" finds "approved," "approving"). Returns the top 10 most relevant results. Common stop words are automatically excluded for precision.
-
-- **Prompt Templates** [Manual §12 §AI Prompt Templates]
-  Pre-built prompt structures with named placeholders that fill in on demand. Select a template, enter the variable values, and the system assembles the final prompt automatically. Ideal for documents generated repeatedly — NDAs, privacy notices, policy acknowledgements, onboarding letters.
-
-**Section 3**: `assets/demo-ai.mp4` video demo in a styled dark monitor frame. Placeholder if missing. [Manual §12]
-
-**Section 4**: `assets/feature-ai.png` full-width screenshot with CSS `position: absolute` annotation callouts pointing to:
-- The prompt input field
-- The streaming output area
-- The rich text editor toolbar
-- The save/export button
-Placeholder layout if image missing — show the four annotation labels in a 2×2 grid. [Manual §12]
-
-**Section 5**: `assets/feature-ai-summary.png` — a second visual showcasing the AI Summary action, shown as a half-width image beside a paragraph explaining the use case. Placeholder if missing. [Manual §5, §12]
-
-**Section 6**: FAQ accordion — 6 questions [Manual §12]:
-
-1. **Is my data sent to OpenAI?**
-   Prompts are processed via a secured API call. OpenAI credentials are never exposed to the browser. All prompts and generated outputs are stored securely in your own system — not in any shared or external database.
-
-2. **What file types does Deep Search support?**
-   PDF, Word documents (DOCX), Excel spreadsheets (XLSX), and plain text files (TXT). Searching is not case-sensitive and matches word variations automatically.
-
-3. **Can I customize prompt templates?**
-   Yes. Administrators can create, edit, and delete prompt templates from the admin panel. Templates support any number of named placeholders.
-
-4. **Does AI generation require internet access?**
-   AI document generation and AI summarization require connectivity to the OpenAI API. Deep Search operates entirely on your stored documents and does not require any external connection.
-
-5. **Is every AI generation logged?**
-   Yes. Every generation event — including the original prompt — is stored in the AI Document List and is visible to authorized administrators. This makes AI use auditable and accountable.
-
-6. **What happens if the AI fails to generate?**
-   The system shows a clear error message. Common causes: blank prompt, network connectivity issue, or OpenAI rate limit. Simply wait a few minutes and retry. All errors are logged for admin visibility.
+**Image**: `assets/feature-branding.png` — shown half-width on the right alongside the Company Profile steps on desktop.
 
 ---
 
-### `security.html` — Security & Compliance [Manual §14, §4, §7, §13, §15]
+### Chapter 2 — User & Access Management
+**ID**: `ch-2` | **Manual**: §4
 
-**Section 1**: H1: `Security Without Compromise.` Subheading: `Every permission, every action, every access attempt — tracked, logged, and auditable.`
+**Intro**: *How to create accounts, define roles, assign permissions, and manage your client directory.*
 
-**Section 2**: `assets/security-diagram.png` full-width with an animated CSS scan-line overlay — a thin horizontal line that sweeps from top to bottom on a 4-second loop using a `@keyframes` animation. Pure CSS. Placeholder if image missing. [Manual §13 Storage Settings]
+**Sub-section: Users**
+Body text from §4 Users. Add/Edit/Delete/Permissions/Reset Password as a detail list with teal checkmark bullets. Step list for "To add a new user" (3 steps).
 
-**Section 3**: 8 security pillars in a 2×4 grid (2 col desktop, 1 col mobile) [Manual §4, §7, §13, §14]:
+**Sub-section: Roles**
+Body text from §4 Roles. Step list for creating a role (4 steps). Info box: *"Permissions can include: view, edit, delete, share documents; manage users; define categories; sign documents; and more."*
 
-- **Role-Based Access Control** [Manual §4 Roles] — Permissions defined at role level. Overridable per individual user for page-specific access. Drag-and-drop role assignment with instant inheritance.
-- **256-bit Encrypted Storage** [Manual §13 Storage Settings] — Files stored encrypted at rest in AWS S3 or on your local server. Encryption enabled per storage configuration. A test upload verifies the configuration before it is saved.
-- **Complete Document Audit Trail** [Manual §14 Document Audit History] — Every read, write, share, delete, signature, watermark, and version restore logged with user and timestamp. Searchable and sortable by any column.
-- **Login Audit Logs** [Manual §14 Login Audit Logs] — Every authentication attempt — successful or failed — recorded with username, IP address, date, and time. Identify anomalies and unauthorized access attempts immediately.
-- **Time-Bounded Sharing** [Manual §7 Share Document] — All document shares carry optional start and end dates. Access expires automatically. Revoke instantly at any time.
-- **Password-Protected External Links** [Manual §7 Shareable Link] — External sharing links can require a password and expire on a set date. Download permission is controlled independently.
-- **Digital Signature Integrity** [Manual §7 Digital Signatures] — PDF signatures are encrypted to ensure tamper-proof integrity. Every signature action is versioned and logged in the audit trail.
-- **Automated Retention & Cleanup** [Manual §15] — Archive retention policies automatically delete documents after 30, 60, 90, 180, or 365 days. Deletion is executed by a scheduled cron job and logged in the Cron Job Logs.
+**Sub-section: Assigning Roles to Users**
+Body text from §4 on drag-and-drop. Step list (4 steps). Info box highlighting the drag-and-drop interaction: *"Use your mouse or touch device: drag a user from the All Users list on the left and drop them into the Users with Role list on the right."*
 
-**Section 4**: Audit & Logging detail — three-column layout [Manual §14]:
+**Sub-section: Individual User Permissions**
+Short paragraph. Info box: *"This is useful when a user occasionally needs access to a feature not covered by their role — without creating an entirely new role just for them."*
 
-- **Document Audit History** — Search by document name, meta tag, or user. Sort by date, operation, category, performed by, directed to user, directed to role. Click any entry to navigate directly to the associated document.
-- **Email Logs** — Track every email sent by the system: sender, recipient, subject, body preview, attachments, and delivery status (Sent, Failed, Queued, Delivered, Opened, Bounced). Error details captured if delivery fails.
-- **Cron Job Logs** — Visibility into all 12 automated background tasks: daily notification handler, weekly/monthly/quarterly/semi-annual/yearly reminders, archive retention enforcement, log cleanup, and more. Filter by job name, date, and execution status.
+**Sub-section: Clients**
+Body text from §4 Clients. Two mini step lists side by side on desktop: "Add New Client" (3 steps) and "Edit Existing Client" (4 steps).
 
-**Section 5**: Two-column compliance callout [Manual §2, §14]:
-- Left: Large DM Serif Display text — *"Built for organizations where a missing signature, a wrong version, or an unauthorized view is not a workflow inconvenience — it's a liability."*
-- Right: Compliance-relevant feature list with teal checkmarks:
-  - Full document audit trail with sortable search
-  - Login audit logs with IP tracking
-  - Time-bounded, revocable access sharing
-  - Digital signature with version and audit logging
-  - Automated archive retention enforcement (30–365 days)
-  - Password-protected external sharing links
-  - Encrypted storage with test-verified configuration
-  - Workflow logs for every approval and transition
+**Images**: `assets/feature-sharing.png` (half width, for roles section) | `assets/feature-clients.png` (half width, for clients section)
 
-**Section 6**: Automated Background Tasks — a compact table showcasing all 12 cron jobs [Manual §14 Cron Job Logs]:
+---
+
+### Chapter 3 — Document Library
+**ID**: `ch-3` | **Manual**: §5
+
+**Intro**: *Where users browse, filter, and monitor the full lifecycle of every document.*
+
+**Sub-section: All Documents**
+Paragraph from §5. Search and filter options as a detail list. Then the document actions as a `.data-table`:
+
+| Action | What it does |
+|---|---|
+| Edit | Update name, description, or meta tags. |
+| Share | Grant access to users or roles. |
+| Get Shareable Link | Generate a public or password-protected link with optional expiry. |
+| AI Summary | Generate an instant AI summary of the document. |
+| View | Open the document in the built-in viewer. |
+| Upload a New Version | Add an updated file — original is preserved. |
+| Version History | View, restore, or download previous versions. |
+| Comment | Add or read threaded comments on the document. |
+| Add Reminder | Set a date-based reminder tied to this document. |
+| Send as Email | Send the document as an email attachment. |
+| Add Watermark | Apply a text watermark across all PDF pages. |
+| Document Signature | Digitally sign the document. |
+| Delete | Permanently remove the document. |
+
+Info box: *"You can select one, multiple, or all documents and use the bulk Share option to distribute them to users or groups in a single action."*
+
+**Sub-section: Assigned Documents**
+Paragraph from §5. Two detail items that differ from All Documents: Status dropdown, My Reminders panel. Full column list of what each entry shows: name, status, category, creation date, expiration date, created by.
+
+**Sub-section: Archived Documents**
+Paragraph from §5.
+
+**Sub-section: Expired Documents**
+Paragraph from §5. Info box: *"Expired documents are automatically flagged by the system. This prevents outdated versions from being used in active processes."*
+
+**Image**: `assets/feature-documents.png` — full width at top of chapter, below the chapter header, as a showcase image. Use full-width `.img-frame` with `aspect-ratio: 16/9`.
+
+---
+
+### Chapter 4 — Creating & Managing Documents
+**ID**: `ch-4` | **Manual**: §6
+
+**Intro**: *How to upload, version, and annotate documents.*
+
+**Sub-section: Adding a Document**
+Form fields as a detail list (Upload Document, Category, Name, Status, Description, Meta Tags). Info box with two-part clarification: *"The Status field on the upload form controls access visibility (e.g., Confidential or Public). Separately, documents also carry a lifecycle status — Draft, Final, or Archived — managed via Document Status settings. These two controls are independent."*
+
+**Sub-section: Bulk Document Upload**
+Step list (7 steps) from §6.
+
+**Sub-section: Version History**
+Two mini step lists: "To upload a new version" (3 steps) and "To view or restore a previous version" (3 steps, including the Restore behavior description).
+
+**Sub-section: Comments**
+Short paragraph from §6 Comments.
+
+---
+
+### Chapter 5 — Sharing & Collaboration
+**ID**: `ch-5` | **Manual**: §7
+
+**Intro**: *Share documents securely, collect signatures, protect with watermarks, and communicate through email.*
+
+**Sub-section: Share Document**
+Step list (5 steps) for sharing. Then a detail list for the optional configuration options (Share Duration, Allow Download, Allow Email Notification). Info box: *"If Allow Email Notification is checked, SMTP must be configured. An error is shown if SMTP settings are missing."* Then: how to remove access (2 steps).
+
+**Sub-section: Shareable Link**
+Three-item detail list (Start/Expiry Dates, Password Protection, Download Permission). Info box: *"All options are optional — links can be as open or as restricted as needed. The recipient needs no account to access the document."*
+
+**Sub-section: Sending a Document by Email**
+Step list (5 steps) from §7.
+
+**Sub-section: Digital Signatures**
+Step list (4 steps). Then a detail list of key features (direct PDF signing, company profile inclusion, encrypted output, annotation flexibility).
+
+**Sub-section: Document Watermarks**
+Step list (3 steps). Info box: *"Every watermark action creates a new document version. The original is always preserved in version history."*
+
+**Images**: `assets/feature-signature.png` (for signatures section) | `assets/feature-sharing.png` (for share document section) — half-width, alternating left/right on desktop.
+
+---
+
+### Chapter 6 — File Requests
+**ID**: `ch-6` | **Manual**: §8
+
+**Intro**: *Collect documents from anyone — internal or external — without requiring an account.*
+
+**Sub-section: Creating a File Request**
+Step list (3 steps). Then a sub-list of configuration options (Subject, Email, Allowed File Extensions, Maximum File Size, Maximum Documents, Link Expiration). Then a detail list of per-request management actions (Edit, Delete, Copy Link).
+
+**Sub-section: Reviewing Submitted Documents**
+Three-item detail list (Preview, Approve, Reject — with the reject comment examples from the manual). Then a status reference as a small inline table:
+
+| Status | Meaning |
+|---|---|
+| Pending | Awaiting review |
+| Approved | Accepted and finalized |
+| Rejected | Needs correction — reason provided |
+
+**Image**: `assets/feature-file-request.png` — half-width, right side, alongside the Creating section.
+
+---
+
+### Chapter 7 — Search
+**ID**: `ch-7` | **Manual**: §9
+
+**Intro**: *Find any document — by name, by tag, or by what's written inside it.*
+
+**Sub-section: Standard Search**
+Short paragraph. Detail list: name, meta tags, category, storage, creation date.
+
+**Sub-section: Deep Search**
+Longer paragraph. Detail list of all 5 behaviors from the manual (top 10 results, case-insensitive, stop words excluded, word stemming, supported file types). Info box styled with teal border: *"Searching 'run' will also return results for 'running' and 'runs'. Common words like 'and', 'the', and 'is' are automatically excluded to improve precision."*
+
+**Image**: `assets/feature-search.png` — half-width left, text right.
+
+---
+
+### Chapter 8 — Reminders & Notifications
+**ID**: `ch-8` | **Manual**: §10
+
+**Intro**: *Time-based alerts tied to documents or events, delivered in-app and by email.*
+
+**Sub-section: Reminders**
+Step list (3 steps — click Add Reminder, fill form, save). Then a `.data-table` for the form fields:
+
+| Field | Options / Description |
+|---|---|
+| Subject | Title of the reminder (e.g., "Contract Review Due") |
+| Message | Additional details or instructions |
+| Reminder Date | When the reminder triggers |
+| Repeat Reminder | Daily / Weekly / Monthly / Semi-annually / Custom date |
+| Send Email | Also sends an email notification when triggered |
+| Select Users | Choose individuals or groups to receive the reminder |
+
+**Sub-section: Notifications**
+Two-item detail list (Document Shared Notification, Reminder Notifications) from §10. Info box: *"External users who receive shared documents are notified with a secure access link — no account required."*
+
+**Image**: `assets/feature-reminders.png` — full width below the chapter header.
+
+---
+
+### Chapter 9 — Workflows
+**ID**: `ch-9` | **Manual**: §11
+
+**Intro**: *Multi-step approvals and review processes — built, tracked, and logged.*
+
+**Sub-section: Managing Workflows**
+Body text from §11 Managing Workflows. Two mini step lists: "Creating a new workflow" (3 steps) and "Editing an existing workflow" (3 items).
+
+**Sub-section: All Workflows**
+Paragraph. Workflow status `.data-table`:
+
+| Status | Meaning |
+|---|---|
+| Completed | Fully executed |
+| Initiated | Started, not yet progressed |
+| In Progress | Actively running |
+| Cancelled | Stopped before completion |
+
+Then: graphical view description (completed transitions vs pending transitions distinction). Then: clickable steps behavior.
+
+**Sub-section: My Workflows (Current Workflows)**
+Paragraph. Info box: *"This page shows only the workflows you are personally authorized to manage or participate in — a focused, user-specific view."*
+
+**Sub-section: Workflow Logs**
+Paragraph from §11 Workflow Logs.
+
+**Video**: `assets/demo-workflow.mp4` — full-width video block above the Managing Workflows sub-section. If missing, placeholder with ▶ icon and caption "Workflow automation in action".
+
+**Image**: `assets/feature-workflow.png` — half-width right, alongside the All Workflows sub-section.
+
+---
+
+### Chapter 10 — AI Features
+**ID**: `ch-10` | **Manual**: §12
+
+**Intro**: *Generate documents, summarize existing files, search inside content, and accelerate repeat work with templates.*
+
+**Sub-section: AI Document Generator**
+Step list (5 steps from §12). Then: Tips for better results as a detail list (2 tips). Then: Technical notes as an info box. Then: a `.data-table` for common issues:
+
+| Issue | Cause | Solution |
+|---|---|---|
+| Nothing is generated | Blank prompt or network error | Enter a valid prompt and check your connection. |
+| 419 Error | Missing CSRF token | Ensure you're logged in with a valid session. |
+| API Failed | OpenAI rate limit | Wait a few minutes and try again. |
+
+**Sub-section: AI Document Summary**
+Paragraph: "Select any document already in your library and generate an instant AI summary from the document action menu. Useful for reviewing lengthy files, quickly extracting key points, or onboarding team members to an existing policy or contract without reading the full document."
+
+**Sub-section: Deep Search** *(cross-reference link to Chapter 7)*
+Brief paragraph noting this feature and a linked reference: *"See Chapter 7 — Search for full Deep Search details."*
+
+**Sub-section: AI Prompt Templates**
+Step list (4 steps from §12). Info box: *"Administrators can create, edit, and delete templates from the admin panel. Templates support any number of named placeholders."*
+
+**Sub-section: AI Document List**
+Two-item detail list (Prompt field, Output field). Paragraph on use cases from §12.
+
+**Video**: `assets/demo-ai.mp4` — full-width video block at the top of the chapter, after the chapter header.
+
+**Images**: `assets/feature-ai.png` (full-width, for AI Generator section, with 4 annotation callout labels absolutely positioned: Prompt Input, Streaming Output, Editor Toolbar, Save/Export) | `assets/feature-ai-summary.png` (half-width, for AI Summary section)
+
+---
+
+### Chapter 11 — Administration & Settings
+**ID**: `ch-11` | **Manual**: §13
+
+**Intro**: *Platform configuration: categories, statuses, storage, file types, email, and in-app help.*
+
+**Sub-section: Document Categories**
+Paragraph. Step list for adding (3 steps). Step list for viewing subcategories (3 steps).
+
+**Sub-section: Document Status**
+Three-item detail list (Draft, Final, Archived) with descriptions. Info box: *"Lifecycle status is separate from the access visibility field (Confidential / Public) set at upload. They control different things."*
+
+**Sub-section: Storage Settings**
+`.data-table` for storage types:
+
+| Type | Required Fields | Notes |
+|---|---|---|
+| Local | None | Default, cannot be deleted. Always available as a fallback. |
+| AWS S3 | Access Key, Secret Key, Bucket Name | Cloud storage with optional encryption. |
+
+Detail list for options (Enable Encryption, Set as Default). Info box: *"When you save a new configuration, the system uploads a test file to verify the connection. If the test fails, you are prompted to correct the settings before they are applied."*
+
+**Sub-section: Allowed File Extensions**
+Step list (4 steps from §13).
+
+**Sub-section: Email (SMTP) Settings**
+Step list (3 steps — go to settings, fill form, save). Form fields as detail list: Username, Host, Port, Is Default. Info box: *"Multiple SMTP configurations can be stored. Only the one marked as default is used automatically."*
+
+**Sub-section: Page Helpers**
+Paragraph from §13. Two-item detail list (View, Edit).
+
+**Image**: `assets/feature-branding.png` (half-width, branding section) | `assets/feature-multilang.png` (half-width, language section) | `assets/security-diagram.png` (full-width, storage section)
+
+---
+
+### Chapter 12 — Auditing & Logs
+**ID**: `ch-12` | **Manual**: §14
+
+**Intro**: *Accountability and traceability for every document action, login, email, and automated task.*
+
+**Sub-section: Document Audit History**
+Search fields as a detail list (by document name, by meta tag, by user). Then a paragraph on what each audit entry shows. Then: sortable columns as a horizontal tag list styled with small `var(--blue-100)` pill backgrounds in Fira Code. Info box: *"Click any entry to view additional details or navigate directly to the associated document."*
+
+**Sub-section: Login Audit Logs**
+Paragraph. Fields detail list (username, login date/time, IP address, result).
+
+**Sub-section: Email Logs**
+Fields as a `.data-table`:
+
+| Field | Description |
+|---|---|
+| Email ID | Unique identifier for each email sent |
+| Timestamp | Date and time sent |
+| Sender | The email address the message was sent from |
+| Recipient | Destination email address |
+| Subject | Email subject line |
+| Body | Preview of message content |
+| Attachments | Any files included in the email |
+| Delivery Status | Sent / Failed / Queued / Delivered / Opened / Bounced |
+| Error Details | If delivery failed, the error reason is captured |
+
+**Sub-section: Cron Job Logs**
+Introductory paragraph. Then a full `.data-table` of all 12 scheduled jobs:
 
 | Job | Schedule | Purpose |
 |---|---|---|
-| Custom Date Reminder | On demand | Sends reminders on user-defined dates |
-| Daily Notification Handler | Daily | Aggregates and sends daily document alerts |
+| Custom Date Reminder | On demand | Sends reminders on user-defined custom dates |
+| Daily Notification Handler | Daily | Aggregates and dispatches daily document alerts |
 | Weekly Reminder | Weekly | Recurring weekly reminders for document actions |
 | Monthly Reminder | Monthly | Monthly deadline and review notifications |
 | Quarterly Reminder | Every 3 months | Quarterly document review prompts |
@@ -578,225 +735,322 @@ Placeholder layout if image missing — show the four annotation labels in a 2×
 | Yearly Reminder | Annual | Annual compliance and renewal notifications |
 | Notification Scheduler | Continuous | Coordinates all scheduled notification delivery |
 | Send Email | Triggered | Processes all queued outgoing emails reliably |
-| Delete Archive By Retention Date | Daily | Auto-deletes archived documents past retention |
+| Delete Archive By Retention Date | Daily | Auto-deletes archived documents past their retention period |
 | Delete/Archive/Expire By Retention | Daily | Applies retention rules: delete, archive, or expire |
-| Delete Email, Audit & Cron Logs | Periodic | Cleans up old log records for performance |
+| Delete Email, Audit & Cron Logs | Periodic | Cleans up old log records to maintain system performance |
 
-Style this table with IBM Plex Mono, alternating row backgrounds using `--bg-surface` and `--bg-elevated`, teal first-column text, and no outer border radius.
+Info box: *"This log acts as a system automation audit trail — valuable during compliance reviews and for troubleshooting notification delivery issues."*
 
----
-
-### `contact.html` — Contact / Request Demo
-
-**Section 1**: H1: `Let's talk.` Subheading: `Request a demo or ask us anything.`
-
-**Section 2**: Two-column layout:
-- Left: Contact form (pure HTML — use `<form action="mailto:hello@cmrdms.com" method="POST" enctype="text/plain">` and include a comment in the HTML noting "Replace with your server-side endpoint or form service"). Fields:
-  - Full Name (required)
-  - Company (required)
-  - Job Title
-  - Email (required, type="email")
-  - Primary Need (select): Document Management / Workflow Automation / AI Features / Security & Compliance / White-Label & Branding / Other
-  - Message (textarea)
-  - Submit button: "Send Message" in solid teal.
-- Right: Contact info block:
-  - Email: `hello@cmrdms.com`
-  - Phone: `+1 (800) CMR-DOCS`
-  - Address: `[Headquarters address — replace with your location]`
-  - A small note: *"Typical response time: within one business day."*
-
-**Section 3**: FAQ — 5 questions [Manual §3, §4, §11, §13]:
-
-1. **How is CMR DMS deployed?** — The platform is deployed on your server infrastructure. There is no shared multi-tenant cloud. Your documents, your server, your control.
-2. **How long does onboarding take?** — Most organizations are operational within a few days. Initial setup involves configuring categories, adding users and roles, setting your storage backend, and uploading your company branding.
-3. **Can we white-label the platform?** — Yes. Upload your logo and banner, and set your company name as the browser title. Every user sees your branding from the login screen onward.
-4. **Is multi-language support available?** — Yes. Administrators can add, update, and remove language options. The full interface is available in any configured language.
-5. **Does it integrate with our existing email infrastructure?** — Yes. Configure any SMTP server (or multiple, with a default) to handle all outgoing notifications, reminders, and document-sharing emails.
+**Image**: `assets/feature-audit.png` — full width below the chapter header, before the sub-sections.
 
 ---
 
-## SHARED COMPONENT SPECS
+### Chapter 13 — Retention & Cleanup
+**ID**: `ch-13` | **Manual**: §15
 
-### Scroll Animations (`js/animations.js`)
+**Intro**: *Automatic document deletion policies to keep storage organized and compliant.*
 
-Use the **Intersection Observer API** — no GSAP required (use GSAP if you choose to, via CDN).
+**Sub-section: Archive Document Retention Period**
+Paragraph from §15. Retention options displayed as a horizontal row of 5 option badges (styled pill buttons, non-interactive, decorative):
 
-- Elements with class `.reveal` fade in from `opacity: 0; transform: translateY(30px)` when they enter the viewport. Stagger children with `.reveal-children > *` applying increasing `transition-delay` (0ms, 80ms, 160ms, 240ms...).
-- Stat counters: When a `.stat-counter` element enters the viewport, animate the number from 0 to its `data-target` value over 1.8 seconds with easeOutExpo easing.
-- Timeline items on `how-it-works.html`: slide in from left or right alternately.
-- FAQ accordion items: smooth `max-height` transition for expand/collapse. Only one item open at a time.
+```
+[ 30 days ]  [ 60 days ]  [ 90 days ]  [ 180 days ]  [ 365 days ]
+```
 
-### Button Styles
+Each badge: `background: var(--blue-100)`, `border: 1px solid var(--blue-500)`, `border-radius: 20px`, `padding: 6px 18px`, `font: 600 0.9rem 'Fira Code'`, `color: var(--blue-700)`.
 
+Then: how it works as a 2-step process: Enable the setting → system monitors document age → auto-deletes at threshold.
+
+Info box with green left border: *"Enabling this feature helps keep your workspace organized and ensures compliance with data retention policies — without any manual intervention."*
+
+**Closing block** (after Chapter 13, still within the content area):
+```html
+<div class="manual-end">
+  <div class="manual-end-icon">✦</div>
+  <h2>End of Manual</h2>
+  <p>For additional support, contact your system administrator or reach out via the Help Center.</p>
+  <p class="manual-version">CMR DMS / DocAI · User Manual v2 · DocAI_User_Manual_v2.md</p>
+</div>
+```
+Style: centered, `padding: 80px 40px`, light teal/blue gradient background across full width of content area, gentle rounded top corners. The ✦ icon large, `color: var(--teal-400)`.
+
+---
+
+## INTERACTIVE NAVIGATION — SPECIFICATION (`js/tabs.js`, `js/chapters.js`)
+
+Beyond linear scrolling, two layers of interactivity improve how dense chapters are explored:
+
+---
+
+### 1. Floating Jump-Nav Button
+
+A persistent floating button — bottom-right corner on desktop, bottom-center on mobile — that opens a compact chapter quick-jump panel. This gives users a way to jump instantly without scrolling back up to the sidebar.
+
+**Implementation**:
+```html
+<div id="jump-nav">
+  <button id="jump-trigger" aria-label="Jump to chapter">
+    <span class="jump-icon">☰</span>
+    <span class="jump-label">Chapters</span>
+  </button>
+  <div id="jump-panel" role="dialog" aria-label="Chapter quick-jump">
+    <!-- 13 compact chapter links, generated from data/chapters.json -->
+  </div>
+</div>
+```
 ```css
-/* Solid accent */
-.btn-primary {
-  background: var(--accent);
-  color: var(--bg-deep);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 14px 28px;
+#jump-nav {
+  position: fixed;
+  bottom: 32px; right: 32px;
+  z-index: 200;
+}
+#jump-trigger {
+  background: var(--blue-700);
+  color: white;
   border: none;
+  border-radius: 50px;
+  padding: 12px 20px;
+  font: 600 0.85rem 'Plus Jakarta Sans';
   cursor: pointer;
-  transition: all 0.2s;
-  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  box-shadow: 0 4px 20px rgba(21, 101, 192, 0.35);
+  display: flex; align-items: center; gap: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-.btn-primary:hover {
-  background: #00F5DA;
-  box-shadow: 0 0 30px rgba(0, 201, 177, 0.4);
+#jump-trigger:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(21,101,192,0.45); }
+#jump-panel {
+  position: absolute; bottom: 56px; right: 0;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  width: 240px;
+  max-height: 400px; overflow-y: auto;
+  opacity: 0; transform: translateY(8px) scale(0.97);
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
 }
+#jump-panel.open { opacity: 1; transform: none; pointer-events: all; }
+```
+Each panel item: chapter number in Fira Code teal + chapter title in Plus Jakarta Sans. Clicking closes panel and smooth-scrolls to the chapter.
 
-/* Ghost */
-.btn-ghost {
+---
+
+### 2. `data/chapters.json` — Chapter Metadata
+
+Generate the sidebar and jump-nav from this JSON file. Read it once on page load in `sidebar.js`.
+
+```json
+[
+  { "id": "ch-1",  "num": "01", "title": "Getting Started",            "icon": "⚙" },
+  { "id": "ch-2",  "num": "02", "title": "User & Access Management",   "icon": "👥" },
+  { "id": "ch-3",  "num": "03", "title": "Document Library",           "icon": "📁" },
+  { "id": "ch-4",  "num": "04", "title": "Creating & Managing Docs",   "icon": "📄" },
+  { "id": "ch-5",  "num": "05", "title": "Sharing & Collaboration",    "icon": "🔗" },
+  { "id": "ch-6",  "num": "06", "title": "File Requests",              "icon": "📥" },
+  { "id": "ch-7",  "num": "07", "title": "Search",                     "icon": "🔍" },
+  { "id": "ch-8",  "num": "08", "title": "Reminders & Notifications",  "icon": "🔔" },
+  { "id": "ch-9",  "num": "09", "title": "Workflows",                  "icon": "⚡" },
+  { "id": "ch-10", "num": "10", "title": "AI Features",                "icon": "🤖" },
+  { "id": "ch-11", "num": "11", "title": "Administration & Settings",  "icon": "🛠" },
+  { "id": "ch-12", "num": "12", "title": "Auditing & Logs",            "icon": "📋" },
+  { "id": "ch-13", "num": "13", "title": "Retention & Cleanup",        "icon": "🗂" }
+]
+```
+
+---
+
+### 3. In-Chapter Tab Groups
+
+Use tab groups in chapters where the content naturally splits into 2–4 parallel views that a user would want to switch between rather than scroll through sequentially. Implement in `js/tabs.js`.
+
+**Tab group CSS** (in `interactive.css`):
+```css
+.tab-group { margin: 32px 0; }
+.tab-list {
+  display: flex; gap: 0; border-bottom: 2px solid var(--gray-200);
+  overflow-x: auto; /* scroll on mobile */
+}
+.tab-btn {
+  font: 600 0.9rem 'Plus Jakarta Sans';
+  color: var(--gray-500);
   background: transparent;
-  color: var(--text-primary);
-  border: 1px solid var(--border);
-  /* same sizing and font as btn-primary */
+  border: none; border-bottom: 3px solid transparent;
+  padding: 12px 20px; cursor: pointer;
+  white-space: nowrap;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
 }
-.btn-ghost:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
+.tab-btn.active { color: var(--blue-700); border-bottom-color: var(--blue-700); }
+.tab-panel { display: none; padding: 24px 0; animation: fadeIn 0.25s ease; }
+.tab-panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 ```
 
-### Cards
+**`tabs.js`** initializes all `.tab-group` elements on the page: sets the first tab active, listens for clicks, toggles `.active` on both buttons and panels. Keyboard: left/right arrows navigate tabs; Enter/Space activates.
+
+**Where to apply tab groups — mandatory:**
+
+- **Chapter 2 (User & Access Management)**: Tabs → `Users` / `Roles` / `Role Assignment` / `Clients`. Each tab shows its sub-section content independently. The drag-and-drop explanation for Role Assignment benefits especially from being isolated.
+
+- **Chapter 5 (Sharing & Collaboration)**: Tabs → `Share Document` / `Shareable Link` / `Send by Email` / `Signatures` / `Watermarks`. Five sub-features that users look up independently.
+
+- **Chapter 9 (Workflows)**: Tabs → `Create & Manage` / `All Workflows` / `My Workflows` / `Workflow Logs`. These are four distinct views within the same module — the distinction is important and gets lost if scrolled through linearly.
+
+- **Chapter 10 (AI Features)**: Tabs → `Document Generator` / `AI Summary` / `Deep Search` / `Prompt Templates` / `AI History`. Five distinct tools that users will access for different tasks.
+
+- **Chapter 12 (Auditing & Logs)**: Tabs → `Document Audit Trail` / `Login Logs` / `Email Logs` / `Cron Job Logs`. Four separate log interfaces — users rarely need all four simultaneously.
+
+---
+
+### 4. In-Chapter Card Switcher
+
+Use a **card switcher** (horizontal scrollable row of clickable preview cards) in Chapter 3 (Document Library) for the document action menu table. Instead of a plain table of 13 actions, render each action as a clickable card:
+
+```
+[ Edit ] [ Share ] [ Shareable Link ] [ AI Summary ] [ View ] [ Upload Version ] ...
+```
+
+Clicking a card expands its detail in a panel below the row. Only one is expanded at a time.
 
 ```css
-.card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  padding: 32px;
-  transition: border-color 0.3s, box-shadow 0.3s;
+.card-switcher { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+.switcher-card {
+  flex: 0 0 auto;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  cursor: pointer;
+  font: 500 0.875rem 'Plus Jakarta Sans';
+  color: var(--gray-800);
+  white-space: nowrap;
+  transition: border-color 0.2s, background 0.2s;
 }
-.card:hover {
-  border-color: rgba(0, 201, 177, 0.3);
-  box-shadow: 0 0 24px rgba(0, 201, 177, 0.07);
+.switcher-card.active {
+  border-color: var(--blue-700);
+  background: var(--blue-50);
+  color: var(--blue-700);
+}
+.switcher-detail {
+  background: var(--blue-50);
+  border: 1px solid var(--blue-100);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  margin-top: 12px;
+  font: 400 0.9rem 'Plus Jakarta Sans';
+  line-height: 1.7;
+  animation: fadeIn 0.2s ease;
 }
 ```
 
-No border-radius on cards or buttons. The chamfered corner on primary buttons and sharp rectangular cards reinforce the precision aesthetic.
+Each card has the action name. The expanded detail panel shows the description from the manual. Default: "Edit" card is active on load.
 
-### Section Layout
+---
 
+## SCROLL BEHAVIOR & INTERACTIONS (`js/sidebar.js`, `js/animations.js`, `js/chapters.js`)
+
+### Chapter Tracking
+Use `IntersectionObserver` on each `<section class="chapter">` with `threshold: 0.2`. When a chapter enters the viewport:
+- Mark its sidebar entry as active (add class `.active`).
+- Update the header's chapter counter: `Chapter N of 13`.
+- Fill the sidebar progress bar proportionally.
+- Mark previous chapters as "completed" (fill their sidebar dot in teal).
+
+### Scroll Reveals
+All `.chapter-header`, `.feature-block`, `.step-list`, `.data-table`, `.video-frame`, `.img-frame` elements start with:
 ```css
-section {
-  padding: 120px clamp(20px, 6vw, 120px);
-  max-width: 1400px;
-  margin: 0 auto;
-}
-.eyebrow {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 16px;
-}
-h2 {
-  font-family: 'DM Serif Display', serif;
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  color: var(--text-primary);
-  line-height: 1.1;
-  margin-bottom: 24px;
-}
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s ease, transform 0.5s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
 ```
+`IntersectionObserver` adds `.visible` when element enters viewport at `rootMargin: "0px 0px -60px 0px"`.
+
+Stagger children of `.reveal-stagger > *` by adding `transition-delay: calc(var(--i) * 60ms)` where `--i` is set as a CSS custom property per child.
+
+### Sidebar Mobile Drawer
+On `< 900px`:
+- Sidebar is hidden (`transform: translateX(-100%)`), becomes a drawer.
+- Hamburger button in header toggles class `.sidebar-open` on `<body>`.
+- Backdrop overlay appears behind the drawer when open (semi-transparent dark overlay, clicking it closes the drawer).
+- Escape key closes the drawer.
+- Focus trap inside the drawer when open.
+
+### Smooth Scroll
+All chapter nav links use `href="#ch-N"`. The native `scroll-behavior: smooth` on `<html>` handles this. On mobile, after clicking a chapter link, the drawer closes automatically.
 
 ---
 
-## RESPONSIVENESS REQUIREMENTS
+## RESPONSIVENESS
 
-- All layouts must work at 320px minimum width.
-- Navigation collapses to hamburger at `< 900px`.
-- All CSS Grid layouts must use `auto-fit` / `minmax` or explicit media queries. Never use fixed pixel widths on grid columns.
-- Font sizes must use `clamp()` for fluid scaling — no fixed large font sizes that overflow on mobile.
-- The Three.js canvas reduces particle count to 30 on mobile and disables mouse parallax.
-- Images use `width: 100%; height: auto;` always.
-- The perspective-tilted hero dashboard image removes its `transform` on mobile.
-- Video elements use `width: 100%; max-width: 960px;` centered.
-- The features.html alternating layout switches to single-column stacked (image always above text) on mobile.
-- The security page cron jobs table must be horizontally scrollable on mobile (`overflow-x: auto` on a wrapper div).
-- Touch targets (buttons, links) must be minimum 44×44px.
-- All `prefers-reduced-motion: reduce` media query rules must disable or minimize animations.
+- **≥ 1024px**: Two-column layout with fixed 280px sidebar + content area.
+- **768px–1023px**: Sidebar is a collapsible drawer (hamburger). Content area fills full width. Feature blocks still side-by-side if space allows.
+- **< 768px**: Full mobile. All feature blocks stack vertically (image above, text below). Tables scroll horizontally in a wrapper div. Video and images full width. Hero tilt removed. Hero Three.js canvas simplified.
+- No fixed pixel column widths. Use `calc(100% - 280px)` for the content area and a CSS custom property `--sidebar-w: 280px` for easy adjustment.
+- Minimum supported width: 320px.
+- All touch targets ≥ 44×44px.
 
 ---
 
-## FOOTER
+## ACCESSIBILITY & QUALITY
 
-Shared across all pages. Dark band with a 1px teal top border. Four columns on desktop, stacked on mobile:
-
-1. Logo + tagline: *"Precision document control for organizations that can't afford ambiguity."*
-2. Platform: Features, AI, Security, How It Works.
-3. Company: Contact, Request Demo.
-4. Legal: Privacy Policy (`#`), Terms of Use (`#`), © 2025 CMR DMS. All rights reserved.
-
-Bottom micro-strip: `ENTERPRISE DOCUMENT INTELLIGENCE` in IBM Plex Mono micro-text, centered, very faint (`opacity: 0.15`).
+- `prefers-reduced-motion: reduce` must disable all CSS transitions and `animations.js` reveal animations. Three.js animation pauses.
+- All images have descriptive `alt` text.
+- All `<section>` elements have appropriate `aria-label` or `aria-labelledby`.
+- Sidebar nav is a `<nav>` element with `aria-label="Chapter navigation"`.
+- Color contrast: all body text must meet WCAG AA (4.5:1 minimum). With `var(--gray-800)` on `var(--white)`, this is comfortably met.
+- Chapter links are keyboard-navigable with visible focus rings (`outline: 2px solid var(--blue-500); outline-offset: 2px`).
 
 ---
 
-## FINAL QUALITY CHECKLIST
+## FINAL CHECKLIST
 
-Before completing, verify every item:
+Before finishing, verify:
 
-**Content coverage (all manual sections must be represented):**
-- [ ] §1 Quick Start 5-step summary visible in homepage hero or how-it-works intro
-- [ ] §2 Introduction — platform description, homepage category stats concept, in Platform Context and index.html
-- [ ] §3 Company Profile / white-label branding — in features.json entry "branding-localization" and contact.html FAQ
-- [ ] §3 Language Settings / multi-language — in features.json "branding-localization", trust badge, contact.html FAQ
-- [ ] §3 User Profile fields — not needed on marketing site; covered implicitly in "User & Access Management" feature
-- [ ] §4 Users / Roles / Drag-and-Drop assignment — in features.json "user-access-management"
-- [ ] §4 Individual page-level permissions — in features.json "user-access-management"
-- [ ] §4 Clients directory — in features.json "user-access-management"
-- [ ] §5 All Documents and Assigned Documents — in features.json "document-library"
-- [ ] §5 AI Summary action — in features.json "ai-engine", ai.html Section 2 and 5
-- [ ] §5 Expiration dates — in features.json "document-library"
-- [ ] §6 Bulk upload — in features.json "document-library"
-- [ ] §6 Version history — in features.json "document-library"
-- [ ] §6 Comments / threaded discussion — in features.json "comments-collaboration"
-- [ ] §6 Document status dual concept (access visibility vs lifecycle) — in features.json "document-library" description
-- [ ] §7 Share Document (time-bounded, download, SMTP requirement) — in features.json "sharing-access"
-- [ ] §7 Shareable Link (password, expiry, download) — in features.json "sharing-access"
-- [ ] §7 Send as Email — in features.json "sharing-access"
-- [ ] §7 Digital Signatures — in features.json "signatures-watermarks"
-- [ ] §7 Watermarks — in features.json "signatures-watermarks"
-- [ ] §8 File Requests (create, limits, expiry) — in features.json "file-requests"
-- [ ] §8 Reviewing submissions (approve/reject with comment) — in features.json "file-requests"
-- [ ] §9 Standard Search — in features.json "ai-engine" details and ai.html
-- [ ] §9 Deep Search (stemming, stop words, top 10, case insensitive) — in features.json "ai-engine", ai.html Section 2
-- [ ] §10 Reminders (recurrence: daily/weekly/monthly/semi-annual/custom) — in features.json "reminders-notifications"
-- [ ] §10 Notifications (in-app + email, real-time on share) — in features.json "reminders-notifications"
-- [ ] §11 All Workflows (admin org-wide view) — in features.json "workflow-automation"
-- [ ] §11 My Workflows (personal filtered view) — in features.json "workflow-automation"
-- [ ] §11 Workflow Logs — in features.json "workflow-automation", security.html
-- [ ] §12 AI Document Generator (streaming, prompts, CKEditor) — ai.html Section 2
-- [ ] §12 AI Prompt Templates (placeholders, assembly) — ai.html Section 2
-- [ ] §12 AI Document List (history, prompt+output pairs) — ai.html Section 2, FAQ item 5
-- [ ] §13 Document Categories (hierarchy, subcategories) — in Platform Overview, features.json "document-library"
-- [ ] §13 Document Status (Draft/Final/Archived lifecycle) — in features.json "document-library"
-- [ ] §13 Storage Settings (Local + AWS S3, encryption, test upload) — in features.json "storage-admin", security.html
-- [ ] §13 Allowed File Extensions — in features.json "storage-admin"
-- [ ] §13 SMTP Settings — in features.json "storage-admin", contact.html FAQ
-- [ ] §13 Page Helpers — in features.json "storage-admin"
-- [ ] §13 Archive Retention Periods (30/60/90/180/365 days) — in features.json "storage-admin", security.html
-- [ ] §14 Document Audit History — in features.json "audit-compliance", security.html
-- [ ] §14 Login Audit Logs — in features.json "audit-compliance", security.html Section 3
-- [ ] §14 Email Logs (delivery status, bounce, error codes) — in features.json "audit-compliance", security.html Section 4
-- [ ] §14 Cron Job Logs (all 12 named jobs) — security.html Section 6 table
-- [ ] §15 Archive Document Retention Period — security.html Section 3, features.json "storage-admin"
+**Structure & Navigation:**
+- [ ] One `index.html` file only — no separate pages
+- [ ] Sidebar built from `data/chapters.json` — 13 entries, progress bar, completion dots
+- [ ] Fixed header with dynamic chapter counter ("Chapter N of 13")
+- [ ] Floating jump-nav button (bottom-right) opens 13-chapter panel, closes on click or Escape
+- [ ] `three-bg.js` full-page background: 30 planes, very low opacity, 30fps cap
+- [ ] `three-hero.js` hero overlay: higher intensity, mouse parallax, pauses when hero out of view
+- [ ] Both Three.js canvases respect `prefers-reduced-motion` (pause animation)
+- [ ] All 13 chapters with correct IDs (`ch-1` through `ch-13`)
+- [ ] Tab groups on chapters 2, 5, 9, 10, 12 — arrow-key navigable
+- [ ] Card switcher on chapter 3 — 13 document actions, one expanded at a time
+- [ ] Manual End block after Chapter 13
+
+**Content (every manual section accounted for):**
+- [ ] §3 Company Profile — ch-1, fields table, 3-step setup, branding image
+- [ ] §3 User Profile — ch-1, fields table
+- [ ] §3 Language Settings — ch-1, info box
+- [ ] §4 Users, Roles, Role Assignment, Individual Permissions, Clients — ch-2
+- [ ] §5 All Documents action table (including AI Summary), Assigned Documents, Archived, Expired — ch-3
+- [ ] §6 Adding Documents, Bulk Upload, Version History, Comments — ch-4
+- [ ] §7 Share Document, Shareable Link, Send Email, Signatures, Watermarks — ch-5
+- [ ] §8 File Requests, Reviewing Submissions, Status table — ch-6
+- [ ] §9 Standard Search, Deep Search — ch-7
+- [ ] §10 Reminders form fields table, Notifications detail list — ch-8
+- [ ] §11 All Workflows, My Workflows, Workflow Logs, Managing Workflows — ch-9
+- [ ] §12 AI Generator, AI Summary, Prompt Templates, AI Document List — ch-10
+- [ ] §13 Categories, Status, Storage, Extensions, SMTP, Page Helpers — ch-11
+- [ ] §14 Document Audit History, Login Logs, Email Logs, all 12 Cron Jobs table — ch-12
+- [ ] §15 Retention periods, 5 badge pills, enable/auto-delete flow — ch-13
+
+**Assets:**
+- [ ] All 19 asset filenames exactly as listed in the manifest
+- [ ] Every missing asset renders a styled placeholder — not a broken `<img>` icon
+- [ ] `demo-workflow.mp4` and `demo-ai.mp4` render with controls; placeholder if missing
 
 **Technical:**
-- [ ] Every `<html>` has correct `lang` attribute, `<meta charset>`, and viewport meta.
-- [ ] Every page has a unique `<title>` and `<meta name="description">`.
-- [ ] All internal links between pages are relative and work from any directory depth.
-- [ ] The Three.js canvas never causes scroll issues or overlaps clickable elements.
-- [ ] All 19 asset filenames match exactly what is listed in the asset manifest above.
-- [ ] Every missing asset renders an intentional styled placeholder — not a broken image icon.
-- [ ] `data/features.json` is valid JSON with all 12 entries and is fetched with `fetch()` in `features.html`.
-- [ ] No `localhost` URLs, no hardcoded absolute paths, no `node_modules` references.
-- [ ] The contact form has browser validation enabled and clear field labels.
-- [ ] Color contrast meets WCAG AA for body text (minimum 4.5:1 for normal text, 3:1 for large text).
-- [ ] All animated elements respect `prefers-reduced-motion` media query.
-- [ ] The hamburger menu is keyboard accessible (Enter/Space to toggle, Escape to close).
-- [ ] The security page cron job table is scrollable horizontally on narrow screens.
-- [ ] Mentally tested at 375px (iPhone SE), 768px (iPad portrait), 1280px (laptop), 1920px (desktop).
+- [ ] No `localhost` URLs, no hardcoded absolute paths, no `node_modules`
+- [ ] All CSS uses variables from the palette — no hardcoded hex colors outside `global.css`
+- [ ] Three.js canvas is hero-section-scoped — not full-page fixed
+- [ ] Three.js animation pauses when hero is out of viewport
+- [ ] Cron job table horizontally scrollable on mobile
+- [ ] All tables horizontally scrollable on mobile (wrapper with `overflow-x: auto`)
+- [ ] Google Fonts loaded in `<head>` via CDN
+- [ ] Three.js loaded via CDN `https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js`
+- [ ] `prefers-reduced-motion` handled in CSS and JS
+- [ ] Valid HTML5 with `lang="en"`, charset, viewport meta on the single HTML file
+- [ ] Unique `<title>`: "CMR DMS / DocAI — User Manual"
+- [ ] Unique `<meta name="description">`: "Complete user manual for CMR DMS / DocAI — covering all platform features from document library to AI generation, workflows, audit trails, and administration."
+

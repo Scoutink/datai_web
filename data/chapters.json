@@ -1,0 +1,15 @@
+[
+  { "id": "ch-1",  "num": "01", "title": "Getting Started",            "icon": "⚙" },
+  { "id": "ch-2",  "num": "02", "title": "User & Access Management",   "icon": "👥" },
+  { "id": "ch-3",  "num": "03", "title": "Document Library",           "icon": "📁" },
+  { "id": "ch-4",  "num": "04", "title": "Creating & Managing Docs",   "icon": "📄" },
+  { "id": "ch-5",  "num": "05", "title": "Sharing & Collaboration",    "icon": "🔗" },
+  { "id": "ch-6",  "num": "06", "title": "File Requests",              "icon": "📥" },
+  { "id": "ch-7",  "num": "07", "title": "Search",                     "icon": "🔍" },
+  { "id": "ch-8",  "num": "08", "title": "Reminders & Notifications",  "icon": "🔔" },
+  { "id": "ch-9",  "num": "09", "title": "Workflows",                  "icon": "⚡" },
+  { "id": "ch-10", "num": "10", "title": "AI Features",                "icon": "🤖" },
+  { "id": "ch-11", "num": "11", "title": "Administration & Settings",  "icon": "🛠" },
+  { "id": "ch-12", "num": "12", "title": "Auditing & Logs",            "icon": "📋" },
+  { "id": "ch-13", "num": "13", "title": "Retention & Cleanup",        "icon": "🗂" }
+]

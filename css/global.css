@@ -1,0 +1,81 @@
+:root {
+  --blue-900: #0D3B6E;
+  --blue-700: #1565C0;
+  --blue-500: #2196F3;
+  --blue-100: #DDEEFF;
+  --blue-50: #F0F7FF;
+  --teal-600: #00897B;
+  --teal-400: #26C6B0;
+  --green-600: #2E7D32;
+  --green-400: #66BB6A;
+  --white: #FFFFFF;
+  --gray-800: #1A2332;
+  --gray-500: #5A6A7A;
+  --gray-200: #D8E6F3;
+  --gray-100: #EEF4FB;
+  --shadow-soft: 0 4px 24px rgba(21, 101, 192, 0.10);
+  --shadow-card: 0 2px 12px rgba(21, 101, 192, 0.08);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --sidebar-w: 280px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--blue-50);
+  color: var(--gray-800);
+  font: 400 1rem/1.75 'Plus Jakarta Sans', sans-serif;
+}
+
+h1 { font: 700 clamp(2rem, 5vw, 3.5rem)/1.15 'Lora', serif; color: var(--blue-900); margin: 0 0 16px; }
+h2 { font: 700 clamp(1.5rem, 3vw, 2.2rem)/1.2 'Lora', serif; color: var(--blue-900); margin: 0 0 12px; }
+h3 { font: 600 clamp(1.1rem, 2vw, 1.4rem)/1.3 'Plus Jakarta Sans', sans-serif; color: var(--blue-700); margin: 0 0 12px; }
+p { max-width: 68ch; margin: 0 0 16px; }
+a { color: var(--blue-700); }
+img { max-width: 100%; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+#bg-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.app-shell { position: relative; z-index: 1; }
+
+.chapter-number {
+  font: 500 0.75rem/1 'Fira Code', monospace;
+  color: var(--blue-500);
+  letter-spacing: 0.15em;
+}
+
+.chapter-intro {
+  color: var(--gray-500);
+  font-style: italic;
+  max-width: 60ch;
+}
+.chapter-accent {
+  width: 80px;
+  height: 2px;
+  border: none;
+  background: linear-gradient(90deg, var(--blue-700), var(--teal-400));
+  margin: 16px 0 0;
+}
+
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s ease, transform 0.5s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-stagger > * { transition-delay: calc(var(--i, 0) * 60ms); }
+
+:focus-visible { outline: 2px solid var(--blue-500); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .reveal { opacity: 1; transform: none; }
+}

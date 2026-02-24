@@ -13,7 +13,7 @@ export function setupThreeBackground({ dimmed }) {
   const count = innerWidth < 800 ? 10 : 18;
   for (let i = 0; i < count; i += 1) {
     const geo = new THREE.PlaneGeometry(3.2, 4.2);
-    const mat = new THREE.MeshBasicMaterial({ color: new THREE.Color(`hsl(${200 + (i * 6)}, 65%, ${72 + (i % 8)}%)`), transparent: true, opacity: 0.26 });
+    const mat = new THREE.MeshBasicMaterial({ color: new THREE.Color(`hsl(${200 + (i * 6)}, 65%, ${58 + (i % 9)}%)`), transparent: true, opacity: 0.26 });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set((Math.random() - 0.5) * 42, (Math.random() - 0.5) * 26, (Math.random() - 0.5) * 30);
     mesh.rotation.z = Math.random() * Math.PI;
@@ -49,7 +49,7 @@ export function setupThreeBackground({ dimmed }) {
     renderer.setSize(innerWidth, innerHeight);
   });
 
-  function setDimmed(isDim) { canvas.style.opacity = isDim ? '0.16' : (dimmed ? '0.16' : '0.52'); }
+  function setDimmed(isDim) { canvas.style.opacity = isDim ? '0.2' : (dimmed ? '0.2' : '0.74'); }
 
   return { setDimmed };
 }

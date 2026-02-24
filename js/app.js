@@ -21,14 +21,38 @@ const app = document.getElementById('app');
 const loadJson = (p) => fetch(p).then((r) => r.json());
 
 const escapeHtml = (s = '') => s.replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+const isVideoSrc = (src = '') => /\.(mp4|webm|ogg)$/i.test(src);
+
+function normalizeMedia(media, fallbackCaption = 'chapter media') {
+  if (!media) return null;
+  const src = media.src || '';
+  return {
+    ...media,
+    src,
+    type: isVideoSrc(src) ? 'video' : 'image',
+    caption: media.caption || fallbackCaption,
+  };
+}
+
+function buildMediaFallback(src = '') {
+  if (!src) return '';
+  const lastDot = src.lastIndexOf('.');
+  if (lastDot < 0) return src;
+  return `${src.slice(0, lastDot)}${src.slice(lastDot).toUpperCase()}`;
+}
 
 function mediaNode(media, asString = true) {
-  if (!media) return `<div class="placeholder">No media</div>`;
-  const type = media.type || (media.src?.endsWith('.mp4') ? 'video' : 'image');
-  const tag = type === 'video'
-    ? `<video src="${media.src}" muted loop playsinline preload="metadata"></video>`
-    : `<img src="${media.src}" alt="${escapeHtml(media.caption || 'chapter media')}" onerror="if(!this.dataset.upperTried && this.src.toLowerCase().endsWith('.png')){this.dataset.upperTried=1;this.src=this.src.slice(0,-4)+'.PNG';return;} this.parentElement.innerHTML='<div class=placeholder>Media missing<br>${escapeHtml(media.src || '')}</div>'">`;
-  return asString ? tag : media.src;
+  const normalized = normalizeMedia(media);
+  if (!normalized) return `<div class="placeholder">No media</div>`;
+  const fb = buildMediaFallback(normalized.src);
+  const encodedCaption = escapeHtml(normalized.caption);
+  const encodedSrc = escapeHtml(normalized.src);
+  const encodedFb = escapeHtml(fb);
+  const tag = normalized.type === 'video'
+    ? `<video src="${encodedSrc}" muted loop playsinline preload="metadata" controlslist="nodownload" onloadeddata="this.parentElement.classList.add('is-ready')" onerror="if(!this.dataset.upperTried && '${encodedFb}' && this.currentSrc !== '${encodedFb}'){this.dataset.upperTried='1';this.src='${encodedFb}';this.load();return;} this.parentElement.innerHTML='<div class=placeholder>Media missing<br>${encodedSrc}</div>'"></video>`
+    : `<img src="${encodedSrc}" alt="${encodedCaption}" loading="lazy" onload="this.parentElement.classList.add('is-ready')" onerror="if(!this.dataset.upperTried && '${encodedFb}' && this.currentSrc !== '${encodedFb}'){this.dataset.upperTried='1';this.src='${encodedFb}';return;} this.parentElement.innerHTML='<div class=placeholder>Media missing<br>${encodedSrc}</div>'">`;
+  const wrapped = `<div class="media-shell"><div class="media-loader" aria-hidden="true"></div>${tag}</div>`;
+  return asString ? wrapped : normalized.src;
 }
 
 function tableNode(t) {
@@ -42,17 +66,18 @@ function drawerNode(card, chapterId) {
     ${(d.body || []).map((p) => `<p>${escapeHtml(p)}</p>`).join('')}
     ${(d.bullets || []).length ? `<ul>${d.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}</ul>` : ''}
     ${(d.steps || []).length ? `<ol>${d.steps.map((s) => `<li>${escapeHtml(s)}</li>`).join('')}</ol>` : ''}
-    ${(d.stepsGroups || []).map((g) => `<h4>${escapeHtml(g.title)}</h4><ol>${(g.steps || []).map((s) => `<li>${escapeHtml(s)}</li>`).join('')}</ol>`).join('')}
+    ${(d.stepsGroups || []).map((g) => `<section class="steps-group"><h4>${escapeHtml(g.title)}</h4><ol>${(g.steps || []).map((s) => `<li>${escapeHtml(s)}</li>`).join('')}</ol></section>`).join('')}
     ${(d.chips || []).length ? `<div class="chips">${d.chips.map((c) => `<span class="chip">${escapeHtml(c)}</span>`).join('')}</div>` : ''}
     ${(d.tables || []).map(tableNode).join('')}
     ${(d.notes || []).length ? `<h4>Notes</h4><ul>${d.notes.map((n) => `<li>${escapeHtml(n)}</li>`).join('')}</ul>` : ''}
-    ${(d.links || []).length ? `<div>${d.links.map((l) => `<button class="btn link-jump" data-to="${l.to}">${escapeHtml(l.label)}</button>`).join('')}</div>` : ''}
-    ${d.media ? `<div class="media-frame" data-media='${JSON.stringify(d.media)}'>${mediaNode(d.media)}</div>` : ''}
+    ${(d.links || []).length ? `<div class="inline-actions">${d.links.map((l) => `<button class="btn link-jump" data-to="${l.to}">${escapeHtml(l.label)}</button>`).join('')}</div>` : ''}
+    ${d.media ? `<button class="media-frame" data-media='${JSON.stringify(normalizeMedia(d.media))}' aria-label="Open media">${mediaNode(d.media)}</button>` : ''}
     ${d.sheetTable ? `<button class="btn open-sheet" data-ch="${chapterId}" data-card="${card.key}">Open Table</button>` : ''}
   </div>`;
 }
 
 function renderSlide(chMeta, chapterContent) {
+  const coverMedia = normalizeMedia(chapterContent.cover.media, chapterContent.title);
   return `<section class="slide" data-chapter-id="${chMeta.id}"><div class="slide-safe">
       <article class="card cover-card">
         <div>
@@ -60,12 +85,12 @@ function renderSlide(chMeta, chapterContent) {
           <p>${escapeHtml(chapterContent.cover.intro)}</p>
           <div class="chips">${chapterContent.cover.takeaways.map((t) => `<span class="chip">${escapeHtml(t)}</span>`).join('')}</div>
         </div>
-        <button class="cover-media" data-media='${JSON.stringify(chapterContent.cover.media)}' aria-label="Open media preview">
-          ${mediaNode(chapterContent.cover.media)}
+        <button class="cover-media" data-media='${JSON.stringify(coverMedia)}' aria-label="Open media preview">
+          ${mediaNode(coverMedia)}
         </button>
       </article>
-      <div class="cards-row">${chapterContent.cards.map((c) => `<article class="card feature-card" data-key="${c.key}" tabindex="0"><h3>${escapeHtml(c.title)}</h3><p>${escapeHtml(c.why)}</p></article>`).join('')}</div>
-      <article class="card drawer" data-drawer="${chMeta.id}"><p>Select a feature card to view details.</p></article>
+      <div class="cards-row" role="tablist" aria-label="Chapter feature sections">${chapterContent.cards.map((c) => `<article class="card feature-card" data-key="${c.key}" tabindex="0" role="tab" aria-selected="false"><h3>${escapeHtml(c.title)}</h3><p>${escapeHtml(c.why)}</p></article>`).join('')}</div>
+      <article class="card drawer" data-drawer="${chMeta.id}"><p>Select a feature section to view details.</p></article>
   </div></section>`;
 }
 
@@ -75,8 +100,47 @@ function setOverlay(open, threeBg) {
   threeBg.setDimmed(Boolean(open));
 }
 
+async function preloadMedia(content) {
+  const mediaList = [];
+  content.chapters.forEach((chapter) => {
+    if (chapter.cover?.media?.src) mediaList.push(chapter.cover.media.src);
+    chapter.cards?.forEach((card) => {
+      if (card.drawer?.media?.src) mediaList.push(card.drawer.media.src);
+    });
+  });
+
+  const unique = [...new Set(mediaList)];
+  await Promise.allSettled(unique.map((src) => new Promise((resolve) => {
+    const normalized = src.startsWith('assets/') ? src : `assets/${src}`;
+    if (isVideoSrc(normalized)) {
+      const v = document.createElement('video');
+      v.preload = 'metadata';
+      v.onloadeddata = () => resolve();
+      v.onerror = () => resolve();
+      v.src = normalized;
+      return;
+    }
+    const i = new Image();
+    i.onload = () => resolve();
+    i.onerror = () => {
+      const fb = buildMediaFallback(normalized);
+      if (fb && fb !== normalized) {
+        const ii = new Image();
+        ii.onload = () => resolve();
+        ii.onerror = () => resolve();
+        ii.src = fb;
+      } else {
+        resolve();
+      }
+    };
+    i.src = normalized;
+  })));
+}
+
 (async function boot() {
+  app.innerHTML = `<div class="boot-loader"><div class="spinner"></div><p>Loading manual…</p></div>`;
   const [chapters, content] = await Promise.all([loadJson('data/chapters.json'), loadJson('data/content.json')]);
+  await preloadMedia(content);
   const contentById = new Map(content.chapters.map((c) => [c.id, c]));
 
   app.innerHTML = `
@@ -85,7 +149,7 @@ function setOverlay(open, threeBg) {
       <div class="current-title"></div>
       <div class="top-actions">
         <button class="btn" data-act="search">🔎 Search</button>
-        <button class="btn" data-act="jump">⬚ Jump Map</button>
+        <button class="btn" data-act="jump">⬚ Chapters</button>
         <button class="btn" data-act="tour">✦ Tour Mode: Off</button>
         <span class="mono progress">01 / 13</span>
       </div>
@@ -119,7 +183,7 @@ function setOverlay(open, threeBg) {
   }
 
   function getMediaNode(ch, inRibbon = false) {
-    const media = { type: ch.media.endsWith('.mp4') ? 'video' : 'image', src: `assets/${ch.media}`, caption: ch.title };
+    const media = normalizeMedia({ src: `assets/${ch.media}`, caption: ch.title });
     const cls = inRibbon ? 'media-frame' : 'cover-media';
     return `<div class="${cls}">${mediaNode(media)}</div>`;
   }
@@ -130,14 +194,18 @@ function setOverlay(open, threeBg) {
     const chapter = contentById.get(chapterId);
     const card = chapter.cards.find((c) => c.key === key);
     if (!card) return;
-    slide.querySelectorAll('.feature-card').forEach((c) => c.classList.toggle('active', c.dataset.key === key));
+    slide.querySelectorAll('.feature-card').forEach((c) => {
+      const active = c.dataset.key === key;
+      c.classList.toggle('active', active);
+      c.setAttribute('aria-selected', String(active));
+    });
     const drawer = slide.querySelector('.drawer');
     drawer.innerHTML = drawerNode(card, chapterId);
     drawer.querySelectorAll('.link-jump').forEach((b) => b.addEventListener('click', () => navigator.goToChapter(b.dataset.to)));
     drawer.querySelectorAll('.media-frame').forEach((m) => m.addEventListener('click', () => {
       const node = JSON.parse(m.dataset.media);
       setOverlay('lightbox', threeBg);
-      document.body.appendChild(openLightbox(node, () => setOverlay(null, threeBg)));
+      document.body.appendChild(openLightbox(normalizeMedia(node), () => setOverlay(null, threeBg)));
     }));
     drawer.querySelectorAll('.open-sheet').forEach((b) => b.addEventListener('click', () => {
       const info = contentById.get(b.dataset.ch).cards.find((c) => c.key === b.dataset.card);
@@ -178,12 +246,11 @@ function setOverlay(open, threeBg) {
       if (state.tourModeEnabled) tour.applyChapter(id);
     },
   });
-  navigator.goToChapter = navigator.goToChapter;
 
   app.querySelectorAll('.cover-media').forEach((m) => m.addEventListener('click', () => {
     const node = JSON.parse(m.dataset.media);
     setOverlay('lightbox', threeBg);
-    document.body.appendChild(openLightbox(node, () => setOverlay(null, threeBg)));
+    document.body.appendChild(openLightbox(normalizeMedia(node), () => setOverlay(null, threeBg)));
   }));
 
   app.querySelectorAll('.feature-card').forEach((card) => {
@@ -206,8 +273,9 @@ function setOverlay(open, threeBg) {
   });
 
   app.querySelector('[data-act="jump"]').addEventListener('click', () => {
+    const map = renderJumpMap({ chapters, onJump: (id) => navigator.goToChapter(id), onClose: () => setOverlay(null, threeBg) });
     setOverlay('jumpmap', threeBg);
-    document.body.appendChild(renderJumpMap({ chapters, onJump: (id) => navigator.goToChapter(id), onClose: () => setOverlay(null, threeBg) }));
+    document.body.appendChild(map);
   });
 
   app.querySelector('[data-act="prev"]').addEventListener('click', () => navigator.move(-1));

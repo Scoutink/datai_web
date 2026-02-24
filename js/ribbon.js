@@ -10,6 +10,8 @@ export function renderRibbon({ container, chapters, activeChapterId, onJump, get
 
   const track = container.querySelector('.ribbon-track');
   const tiles = [...track.querySelectorAll('.ribbon-tile')];
+
+  if (container._onRibbonKey) document.removeEventListener('keydown', container._onRibbonKey);
   tiles.forEach((t) => t.addEventListener('click', () => onJump(t.dataset.id)));
 
   let scrubbing = false;
@@ -28,13 +30,21 @@ export function renderRibbon({ container, chapters, activeChapterId, onJump, get
     return best;
   }
 
+  function cancelScrub() {
+    if (!scrubbing) return;
+    scrubbing = false;
+    onScrubState(false);
+    tooltip.remove();
+    renderRibbon({ container, chapters, activeChapterId, onJump, getMediaNode, onScrubState });
+  }
+
   track.addEventListener('pointerdown', (e) => {
     scrubbing = true;
     onScrubState(true);
     track.setPointerCapture(e.pointerId);
     const n = nearest(e.clientX);
     selectedId = n.dataset.id;
-    n.classList.add('active');
+    tiles.forEach((t) => t.classList.toggle('active', t === n));
     e.preventDefault();
   });
 
@@ -59,16 +69,17 @@ export function renderRibbon({ container, chapters, activeChapterId, onJump, get
     scrubbing = false;
     onScrubState(false);
     track.releasePointerCapture(e.pointerId);
+    tooltip.remove();
     onJump(selectedId);
   });
 
   track.addEventListener('pointerleave', () => tooltip.remove());
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && scrubbing) {
-      scrubbing = false;
-      onScrubState(false);
-      renderRibbon({ container, chapters, activeChapterId, onJump, getMediaNode, onScrubState });
-    }
-  });
+  const onKey = (e) => {
+    if (e.key === 'Escape') cancelScrub();
+  };
+
+  container._onRibbonKey = onKey;
+  document.addEventListener('keydown', onKey);
 }
+

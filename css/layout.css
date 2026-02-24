@@ -100,7 +100,7 @@
   width: calc(100% - var(--sidebar-w));
   padding: 28px clamp(20px, 4vw, 48px) 80px;
 }
-.content-inner { max-width: 900px; margin: 0 auto; }
+.content-inner { max-width: none; margin: 0; width: 100%; }
 
 #hero {
   min-height: 100vh;
@@ -112,7 +112,7 @@
   margin-bottom: 40px;
 }
 #hero-canvas { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.hero-content { position: relative; z-index: 1; width: 100%; }
+.hero-content { position: relative; z-index: 1; width: 100%; max-width: min(1200px, 100%); margin-inline: auto; }
 .hero-badge { display: inline-block; font: 500 0.72rem 'Fira Code', monospace; letter-spacing: 0.2em; color: var(--blue-700); background: var(--blue-100); padding: 4px 10px; border-radius: 4px; }
 .hero-subtitle { font-size: 1.2rem; font-weight: 300; max-width: 52ch; }
 .hero-meta { display: flex; flex-wrap: wrap; gap: 8px; color: var(--gray-500); font: 400 0.83rem 'Fira Code', monospace; margin-bottom: 20px; }
@@ -124,6 +124,9 @@
 .hero-dashboard { width: 100%; max-width: 860px; border-radius: var(--radius); border: 1px solid var(--gray-200); box-shadow: 0 16px 64px rgba(21,101,192,0.18); margin-top: 40px; transform: perspective(1400px) rotateX(5deg); }
 
 .chapter { padding: 24px 0 32px; position: relative; }
+
+.chapter-body { width: 100%; max-width: min(1200px, 100%); margin-inline: auto; padding: 4px 0; }
+
 .chapter + .chapter-divider { margin: 18px 0 24px; border: none; height: 1px; background: linear-gradient(90deg, var(--blue-100), transparent); }
 .watermark { text-align: center; font: italic 700 4rem 'Lora', serif; color: rgba(13, 59, 110, 0.1); margin-bottom: 10px; }
 

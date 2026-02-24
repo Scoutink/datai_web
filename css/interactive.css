@@ -16,14 +16,35 @@
 .jump-item span:first-child { color: var(--teal-600); font: 500 .72rem 'Fira Code', monospace; }
 
 .tab-group { margin: 32px 0; }
-.tab-list { display: flex; gap: 0; border-bottom: 2px solid var(--gray-200); overflow-x: auto; }
+.tab-list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px;
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--white) 84%, var(--blue-50));
+}
 .tab-btn {
   font: 600 .9rem 'Plus Jakarta Sans', sans-serif;
-  color: var(--gray-500); background: transparent; border: none; border-bottom: 3px solid transparent;
-  padding: 12px 20px; cursor: pointer; white-space: nowrap; margin-bottom: -2px; min-height: 44px;
+  color: var(--gray-500);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 42px;
+  transition: 180ms ease;
 }
-.tab-btn.active { color: var(--blue-700); border-bottom-color: var(--blue-700); }
-.tab-panel { display: none; padding: 24px 0; animation: fadeIn .25s ease; }
+.tab-btn:hover { color: var(--blue-700); }
+.tab-btn.active {
+  color: var(--blue-700);
+  border-color: color-mix(in srgb, var(--blue-500) 45%, var(--white));
+  background: var(--white);
+  box-shadow: var(--shadow-card);
+}
+.tab-panel { display: none; padding: 20px 4px 6px; animation: fadeIn .25s ease; }
 .tab-panel.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
